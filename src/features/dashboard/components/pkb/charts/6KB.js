@@ -14,6 +14,9 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 6	Data jumlah Kendaraan bermotor baru
+
+
 const KBBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);

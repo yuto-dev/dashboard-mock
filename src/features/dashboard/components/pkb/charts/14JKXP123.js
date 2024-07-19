@@ -14,6 +14,8 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 14	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
+
 const JKXP123BarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -125,7 +127,7 @@ const JKXP123BarChart = () => {
     }
 
     return (
-        <TitleCard title="Jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum (sesuai tipe)">
+        <TitleCard title="Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe">
             <Bar options={options} data={chartData} />
         </TitleCard>
     );

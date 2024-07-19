@@ -125,7 +125,7 @@ const JKXPR123BarChart = () => {
     }
 
     return (
-        <TitleCard title="Jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum (sesuai tipe)">
+        <TitleCard title="Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe (Dalam Rupiah)">
             <Bar options={options} data={chartData} />
         </TitleCard>
     );

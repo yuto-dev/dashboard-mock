@@ -14,6 +14,8 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 10	Data jumlah kendaraan yang membayar pajak secara online dan offline
+
 const POOBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);

@@ -14,6 +14,11 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 7	Data Jumlah Kendaraan bermotor yg tidak membayar  pajak selama 5 th (dalam bentuk Rupiah)
+// 8	Data Jumlah Kendaraan bermotor yg tidak membayar  pajak selama 7 thn (dalam bentuk Rupiah)
+// 9	Data Jumlah Kendaraan bermotor yg tidak membayar  pajak selama 1 thn (dalam bentuk Rupiah)
+
+
 const XPR157BarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);

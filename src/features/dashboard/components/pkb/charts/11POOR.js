@@ -14,6 +14,8 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// 11	Data jumlah pembayaran PKB secara online dan offline (dalam bentuk Rupiah)
+
 const POORBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -77,7 +79,7 @@ const POORBarChart = () => {
     }
 
     return (
-        <TitleCard title="Jumlah Pembayaran per Metode">
+        <TitleCard title="Jumlah Pembayaran per Metode (Dalam Rupiah)">
             <Bar options={options} data={chartData} />
         </TitleCard>
     );
