@@ -123,10 +123,10 @@ const Selisih15 = () => {
           <tr>
             <th className="normal-case">Tipe</th>
             <th className="normal-case">Tahun 1</th>
-            <th className="normal-case">Tahun 2</th>
-            <th className="normal-case">Tahun 3</th>
             <th className="normal-case">% Tahun 1</th>
+            <th className="normal-case">Tahun 2</th>
             <th className="normal-case">% Tahun 2</th>
+            <th className="normal-case">Tahun 3</th>
             <th className="normal-case">% Tahun 3</th>
           </tr>
         </thead>
@@ -136,11 +136,11 @@ const Selisih15 = () => {
               <tr key={index}>
                 <td>{row.tipe}</td>
                 <td style={{ color: row.tahun1 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun1)}</td>
+                <td style={{ color: row.tahun1 >= 100 ? 'green' : 'red' }}>{row.percentTahun1}%</td>
                 <td style={{ color: row.tahun2 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun2)}</td>
+                <td style={{ color: row.tahun2 >= 100 ? 'green' : 'red' }}>{row.percentTahun2}%</td>
                 <td style={{ color: row.tahun3 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun3)}</td>
-                <td>{row.percentTahun1}%</td>
-                <td>{row.percentTahun2}%</td>
-                <td>{row.percentTahun3}%</td>
+                <td style={{ color: row.tahun3 >= 100 ? 'green' : 'red' }}>{row.percentTahun3}%</td>
               </tr>
             ))
           }

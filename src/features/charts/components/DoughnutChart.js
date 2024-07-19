@@ -26,13 +26,13 @@ function DoughnutChart(){
         },
       };
       
-      const labels = ['Electronics', 'Home Applicances', 'Beauty', 'Furniture', 'Watches', 'Apparel'];
+      const labels = ['Asbes', 'Dolomit', 'Grafit', 'Kalsit', 'Obsidian', 'Zeolit'];
       
       const data = {
         labels,
         datasets: [
             {
-                label: '# of Orders',
+                label: 'Tambang',
                 data: [122, 219, 30, 51, 82, 13],
                 backgroundColor: [
                   'rgba(255, 99, 132, 0.8)',
@@ -56,7 +56,7 @@ function DoughnutChart(){
       };
 
     return(
-        <TitleCard title={"Orders by Category"}>
+        <TitleCard title={"Distribusi per Mineral"}>
                 <Doughnut options={options} data={data} />
         </TitleCard>
     )

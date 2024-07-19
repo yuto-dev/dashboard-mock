@@ -23,18 +23,18 @@ function BarChart(){
         },
       };
       
-      const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+      const labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'];
       
       const data = {
         labels,
         datasets: [
           {
-            label: 'Store 1',
+            label: 'Anggaran',
             data: labels.map(() => { return Math.random() * 1000 + 500 }),
             backgroundColor: 'rgba(255, 99, 132, 1)',
           },
           {
-            label: 'Store 2',
+            label: 'Realisasi',
             data: labels.map(() => { return Math.random() * 1000 + 500 }),
             backgroundColor: 'rgba(53, 162, 235, 1)',
           },
@@ -42,7 +42,7 @@ function BarChart(){
       };
 
     return(
-      <TitleCard title={"No of Orders"} topMargin="mt-2">
+      <TitleCard title={"Pengambilan Pajak"} topMargin="mt-2">
             <Bar options={options} data={data} />
       </TitleCard>
 

@@ -26,23 +26,23 @@ import {
             },
         };
         
-        const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+        const labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'];
         
         const data = {
           labels,
           datasets: [
             {
-              label: 'Store 1',
+              label: 'Marmer',
               data: labels.map(() => { return Math.random() * 1000 + 500 }),
               backgroundColor: 'rgba(255, 99, 132, 1)',
             },
             {
-              label: 'Store 2',
+              label: 'Nitrat',
               data: labels.map(() => { return Math.random() * 1000 + 500 }),
               backgroundColor: 'rgba(53, 162, 235, 1)',
             },
             {
-                label: 'Store 3',
+                label: 'Fosfat',
                 data: labels.map(() => { return Math.random() * 1000 + 500 }),
                 backgroundColor: 'rgba(235, 162, 235, 1)',
               },
@@ -50,7 +50,7 @@ import {
         };
   
       return(
-        <TitleCard title={"Sales"} topMargin="mt-2">
+        <TitleCard title={"Pajak per Mineral"} topMargin="mt-2">
               <Bar options={options} data={data} />
         </TitleCard>
   

@@ -25,25 +25,31 @@ const submenuIconClasses = `h-5 w-5`
 const routes = [
 
   {
-    path: '/app/dashboard',
-    icon: <Squares2X2Icon className={iconClasses}/>, 
-    name: 'Dashboard',
+    path: '/app/pkb',
+    icon: <ChartBarIcon className={iconClasses}/>, 
+    name: 'PKB',
   },
   {
-    path: '/app/leads', // url
+    path: '/app/bbnkb',
+    icon: <ChartBarIcon className={iconClasses}/>, 
+    name: 'BBNKB',
+  },
+  {
+    path: '/app/mblb', // url
     icon: <ChartBarIcon className={iconClasses}/>, // icon component
-    name: 'Data', // name that appear in Sidebar
+    name: 'MBLB', // name that appear in Sidebar
+  },
+  {
+    path: '/app/provinsi', // url
+    icon: <Squares2X2Icon className={iconClasses}/>, // icon component
+    name: 'Data Provinsi', // name that appear in Sidebar
   },
   // {
   //   path: '/app/transactions', // url
   //   icon: <CurrencyDollarIcon className={iconClasses}/>, // icon component
   //   name: 'Transactions', // name that appear in Sidebar
   // },
-  {
-    path: '/app/charts', // url
-    icon: <ChartBarIcon className={iconClasses}/>, // icon component
-    name: 'Analytics', // name that appear in Sidebar
-  },
+  
   // {
   //   path: '/app/integration', // url
   //   icon: <BoltIcon className={iconClasses}/>, // icon component
@@ -131,6 +137,11 @@ const routes = [
   //     }
   //   ]
   // },
+  {
+    path: '/app/regulasi', //no url needed as this has submenu
+    icon: <DocumentTextIcon className={`${iconClasses} inline` }/>, // icon component
+    name: 'Regulasi', // name that appear in Sidebar
+  },
   
 ]
 

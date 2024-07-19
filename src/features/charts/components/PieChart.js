@@ -26,14 +26,14 @@ import {
           },
         };
         
-        const labels = ['India', 'Middle East', 'Europe', 'US', 'Latin America', 'Asia(non-india)'];
+        const labels = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua'];
         
         const data = {
           labels,
           datasets: [
               {
-                  label: '# of Orders',
-                  data: [122, 219, 30, 51, 82, 13],
+                  label: 'Tambang',
+                  data: [122, 219, 30, 51, 363],
                   backgroundColor: [
                     'rgba(255, 99, 255, 0.8)',
                     'rgba(54, 162, 235, 0.8)',
@@ -56,7 +56,7 @@ import {
         };
   
       return(
-          <TitleCard title={"Orders by country"}>
+          <TitleCard title={"Distribusi per Pulau"}>
                   <Pie options={options} data={data} />
           </TitleCard>
       )

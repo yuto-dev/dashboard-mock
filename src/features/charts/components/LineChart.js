@@ -35,14 +35,14 @@ function LineChart(){
   };
 
   
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+  const labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'];
 
   const data = {
   labels,
   datasets: [
     {
       fill: true,
-      label: 'MAU',
+      label: 'Realisasi',
       data: labels.map(() => { return Math.random() * 100 + 500 }),
       borderColor: 'rgb(53, 162, 235)',
       backgroundColor: 'rgba(53, 162, 235, 0.5)',
@@ -52,7 +52,7 @@ function LineChart(){
   
 
     return(
-      <TitleCard title={"Montly Active Users (in k)"} >
+      <TitleCard title={"Realisasi Pajak Per Bulan (Dalam Miliaran Rupiah)"} >
           <Line data={data} options={options}/>
       </TitleCard>
     )

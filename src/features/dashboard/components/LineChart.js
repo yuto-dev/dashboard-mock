@@ -59,7 +59,7 @@ function LineChart(){
   
 
     return(
-      <TitleCard title={"Line Chart"}>
+      <TitleCard title={"Data Historik"}>
           <Line data={data} options={options}/>
       </TitleCard>
     )
