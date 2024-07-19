@@ -19,6 +19,25 @@ const pool = new Pool({
 });
 
 // Endpoint to fetch data based on ID
+
+app.get('/api/province/all', async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT nomor, data, daerah, status, anggaranpkb, realisasipkb, persentasepkb
+        FROM provinsi
+      `);
+  
+      if (result.rows.length > 0) {
+        res.json(result.rows); // Return all rows
+      } else {
+        res.status(404).json({ message: 'No provinces found' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });  
+
 app.get('/api/province/:id', async (req, res) => {
   const { id } = req.params;
   console.log('Province ID:', id);
@@ -67,7 +86,7 @@ app.get('/api/tipekendaraan/count', async (req, res) => {
   }
 });
 
-//3	Data Jumlah Kendaraan bermotor yg tidak membayar pajak selama 5 th
+// 3	Data Jumlah Kendaraan bermotor yg tidak membayar pajak selama 5 th
 // 4	Data Jumlah Kendaraan bermotor yg tidak membayar pajak selama 7th
 
 app.get('/api/tipekendaraan/tidakbayar', async (req, res) => {
@@ -301,7 +320,7 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
               jumlah_tipe_e AS "E_1",
               jumlah_tipe_f AS "F_1"
           FROM pkbrekap
-          WHERE year = 2024
+          WHERE year = 2023
       `);
 
       // Query for 2019 data
@@ -314,7 +333,7 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
               jumlah_tipe_e AS "E_2",
               jumlah_tipe_f AS "F_2"
           FROM pkbrekap
-          WHERE year = 2019
+          WHERE year = 2022
       `);
 
       // Query for 2017 data
@@ -327,7 +346,7 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
               jumlah_tipe_e AS "E_3",
               jumlah_tipe_f AS "F_3"
           FROM pkbrekap
-          WHERE year = 2017
+          WHERE year = 2021
       `);
 
       const counts1Years = {
@@ -366,130 +385,252 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
 
 
 // 13	Data jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
-// 14	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
 
 app.get('/api/tipekendaraan/pajak123', async (req, res) => {
-  try {
-      const result = await pool.query(`
-          SELECT 
-              bayar_1_thn_tipe_a AS "A_1",
-              bayar_1_thn_tipe_b AS "B_1",
-              bayar_1_thn_tipe_c AS "C_1",
-              bayar_1_thn_tipe_d AS "D_1",
-              bayar_1_thn_tipe_e AS "E_1",
-              bayar_1_thn_tipe_f AS "F_1",
-              bayar_2_thn_tipe_a AS "A_2",
-              bayar_2_thn_tipe_b AS "B_2",
-              bayar_2_thn_tipe_c AS "C_2",
-              bayar_2_thn_tipe_d AS "D_2",
-              bayar_2_thn_tipe_e AS "E_2",
-              bayar_2_thn_tipe_f AS "F_2",
-              bayar_3_thn_tipe_a AS "A_3",
-              bayar_3_thn_tipe_b AS "B_3",
-              bayar_3_thn_tipe_c AS "C_3",
-              bayar_3_thn_tipe_d AS "D_3",
-              bayar_3_thn_tipe_e AS "E_3",
-              bayar_3_thn_tipe_f AS "F_3"
-          FROM pkbrekap
-          WHERE year = 2024
-      `);
-
-      const counts1Years = {
-        'A': result.rows[0]['A_1'],
-        'B': result.rows[0]['B_1'],
-        'C': result.rows[0]['C_1'],
-        'D': result.rows[0]['D_1'],
-        'E': result.rows[0]['E_1'],
-        'F': result.rows[0]['F_1'],
-    };
-
-      const counts2Years = {
-          'A': result.rows[0]['A_2'],
-          'B': result.rows[0]['B_2'],
-          'C': result.rows[0]['C_2'],
-          'D': result.rows[0]['D_2'],
-          'E': result.rows[0]['E_2'],
-          'F': result.rows[0]['F_2'],
+    try {
+        const result = await pool.query(`
+            SELECT 
+                bayar_1_thn_tipe_a AS "A_1",
+                bayar_1_thn_tipe_b AS "B_1",
+                bayar_1_thn_tipe_c AS "C_1",
+                bayar_1_thn_tipe_d AS "D_1",
+                bayar_1_thn_tipe_e AS "E_1",
+                bayar_1_thn_tipe_f AS "F_1",
+                bayar_2_thn_tipe_a AS "A_2",
+                bayar_2_thn_tipe_b AS "B_2",
+                bayar_2_thn_tipe_c AS "C_2",
+                bayar_2_thn_tipe_d AS "D_2",
+                bayar_2_thn_tipe_e AS "E_2",
+                bayar_2_thn_tipe_f AS "F_2",
+                bayar_3_thn_tipe_a AS "A_3",
+                bayar_3_thn_tipe_b AS "B_3",
+                bayar_3_thn_tipe_c AS "C_3",
+                bayar_3_thn_tipe_d AS "D_3",
+                bayar_3_thn_tipe_e AS "E_3",
+                bayar_3_thn_tipe_f AS "F_3"
+            FROM pkbrekap
+            WHERE year = 2024
+        `);
+  
+        const counts1Years = {
+          'A': result.rows[0]['A_1'],
+          'B': result.rows[0]['B_1'],
+          'C': result.rows[0]['C_1'],
+          'D': result.rows[0]['D_1'],
+          'E': result.rows[0]['E_1'],
+          'F': result.rows[0]['F_1'],
       };
+  
+        const counts2Years = {
+            'A': result.rows[0]['A_2'],
+            'B': result.rows[0]['B_2'],
+            'C': result.rows[0]['C_2'],
+            'D': result.rows[0]['D_2'],
+            'E': result.rows[0]['E_2'],
+            'F': result.rows[0]['F_2'],
+        };
+  
+        const counts3Years = {
+            'A': result.rows[0]['A_3'],
+            'B': result.rows[0]['B_3'],
+            'C': result.rows[0]['C_3'],
+            'D': result.rows[0]['D_3'],
+            'E': result.rows[0]['E_3'],
+            'F': result.rows[0]['F_3'],
+        };
+  
+        res.json({ counts1Years, counts2Years, counts3Years });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching data');
+    }
+  });
 
-      const counts3Years = {
-          'A': result.rows[0]['A_3'],
-          'B': result.rows[0]['B_3'],
-          'C': result.rows[0]['C_3'],
-          'D': result.rows[0]['D_3'],
-          'E': result.rows[0]['E_3'],
-          'F': result.rows[0]['F_3'],
+// 14	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
+
+app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                tidak_bayar_1_thn_tipe_a AS "A_1",
+                tidak_bayar_1_thn_tipe_b AS "B_1",
+                tidak_bayar_1_thn_tipe_c AS "C_1",
+                tidak_bayar_1_thn_tipe_d AS "D_1",
+                tidak_bayar_1_thn_tipe_e AS "E_1",
+                tidak_bayar_1_thn_tipe_f AS "F_1",
+                tidak_bayar_2_thn_tipe_a AS "A_2",
+                tidak_bayar_2_thn_tipe_b AS "B_2",
+                tidak_bayar_2_thn_tipe_c AS "C_2",
+                tidak_bayar_2_thn_tipe_d AS "D_2",
+                tidak_bayar_2_thn_tipe_e AS "E_2",
+                tidak_bayar_2_thn_tipe_f AS "F_2",
+                tidak_bayar_3_thn_tipe_a AS "A_3",
+                tidak_bayar_3_thn_tipe_b AS "B_3",
+                tidak_bayar_3_thn_tipe_c AS "C_3",
+                tidak_bayar_3_thn_tipe_d AS "D_3",
+                tidak_bayar_3_thn_tipe_e AS "E_3",
+                tidak_bayar_3_thn_tipe_f AS "F_3"
+            FROM pkbrekap
+            WHERE year = 2024
+        `);
+  
+        const counts1Years = {
+          'A': result.rows[0]['A_1'],
+          'B': result.rows[0]['B_1'],
+          'C': result.rows[0]['C_1'],
+          'D': result.rows[0]['D_1'],
+          'E': result.rows[0]['E_1'],
+          'F': result.rows[0]['F_1'],
       };
-
-      res.json({ counts1Years, counts2Years, counts3Years });
-  } catch (err) {
-      console.error(err);
-      res.status(500).send('Error fetching data');
-  }
-});
+  
+        const counts2Years = {
+            'A': result.rows[0]['A_2'],
+            'B': result.rows[0]['B_2'],
+            'C': result.rows[0]['C_2'],
+            'D': result.rows[0]['D_2'],
+            'E': result.rows[0]['E_2'],
+            'F': result.rows[0]['F_2'],
+        };
+  
+        const counts3Years = {
+            'A': result.rows[0]['A_3'],
+            'B': result.rows[0]['B_3'],
+            'C': result.rows[0]['C_3'],
+            'D': result.rows[0]['D_3'],
+            'E': result.rows[0]['E_3'],
+            'F': result.rows[0]['F_3'],
+        };
+  
+        res.json({ counts1Years, counts2Years, counts3Years });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching data');
+    }
+  });
 
 // 15	Data jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum sesuai tipe. (Dalam bentuk Rupiah)
-// 16	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum sesuai tipe. (Dalam bentuk Rupiah)
 
 app.get('/api/tipekendaraan/pajak123rupiah', async (req, res) => {
-  try {
-      const result = await pool.query(`
-          SELECT 
-              bayar_1_thn_tipe_a_rupiah AS "A_1",
-              bayar_1_thn_tipe_b_rupiah AS "B_1",
-              bayar_1_thn_tipe_c_rupiah AS "C_1",
-              bayar_1_thn_tipe_d_rupiah AS "D_1",
-              bayar_1_thn_tipe_e_rupiah AS "E_1",
-              bayar_1_thn_tipe_f_rupiah AS "F_1",
-              bayar_2_thn_tipe_a_rupiah AS "A_2",
-              bayar_2_thn_tipe_b_rupiah AS "B_2",
-              bayar_2_thn_tipe_c_rupiah AS "C_2",
-              bayar_2_thn_tipe_d_rupiah AS "D_2",
-              bayar_2_thn_tipe_e_rupiah AS "E_2",
-              bayar_2_thn_tipe_f_rupiah AS "F_2",
-              bayar_3_thn_tipe_a_rupiah AS "A_3",
-              bayar_3_thn_tipe_b_rupiah AS "B_3",
-              bayar_3_thn_tipe_c_rupiah AS "C_3",
-              bayar_3_thn_tipe_d_rupiah AS "D_3",
-              bayar_3_thn_tipe_e_rupiah AS "E_3",
-              bayar_3_thn_tipe_f_rupiah AS "F_3"
-          FROM pkbrekap
-          WHERE year = 2024
-      `);
-
-      const counts1Years = {
-        'A': result.rows[0]['A_1'],
-        'B': result.rows[0]['B_1'],
-        'C': result.rows[0]['C_1'],
-        'D': result.rows[0]['D_1'],
-        'E': result.rows[0]['E_1'],
-        'F': result.rows[0]['F_1'],
-    };
-
-      const counts2Years = {
-          'A': result.rows[0]['A_2'],
-          'B': result.rows[0]['B_2'],
-          'C': result.rows[0]['C_2'],
-          'D': result.rows[0]['D_2'],
-          'E': result.rows[0]['E_2'],
-          'F': result.rows[0]['F_2'],
+    try {
+        const result = await pool.query(`
+            SELECT 
+                bayar_1_thn_tipe_a_rupiah AS "A_1",
+                bayar_1_thn_tipe_b_rupiah AS "B_1",
+                bayar_1_thn_tipe_c_rupiah AS "C_1",
+                bayar_1_thn_tipe_d_rupiah AS "D_1",
+                bayar_1_thn_tipe_e_rupiah AS "E_1",
+                bayar_1_thn_tipe_f_rupiah AS "F_1",
+                bayar_2_thn_tipe_a_rupiah AS "A_2",
+                bayar_2_thn_tipe_b_rupiah AS "B_2",
+                bayar_2_thn_tipe_c_rupiah AS "C_2",
+                bayar_2_thn_tipe_d_rupiah AS "D_2",
+                bayar_2_thn_tipe_e_rupiah AS "E_2",
+                bayar_2_thn_tipe_f_rupiah AS "F_2",
+                bayar_3_thn_tipe_a_rupiah AS "A_3",
+                bayar_3_thn_tipe_b_rupiah AS "B_3",
+                bayar_3_thn_tipe_c_rupiah AS "C_3",
+                bayar_3_thn_tipe_d_rupiah AS "D_3",
+                bayar_3_thn_tipe_e_rupiah AS "E_3",
+                bayar_3_thn_tipe_f_rupiah AS "F_3"
+            FROM pkbrekap
+            WHERE year = 2024
+        `);
+  
+        const counts1Years = {
+          'A': result.rows[0]['A_1'],
+          'B': result.rows[0]['B_1'],
+          'C': result.rows[0]['C_1'],
+          'D': result.rows[0]['D_1'],
+          'E': result.rows[0]['E_1'],
+          'F': result.rows[0]['F_1'],
       };
+  
+        const counts2Years = {
+            'A': result.rows[0]['A_2'],
+            'B': result.rows[0]['B_2'],
+            'C': result.rows[0]['C_2'],
+            'D': result.rows[0]['D_2'],
+            'E': result.rows[0]['E_2'],
+            'F': result.rows[0]['F_2'],
+        };
+  
+        const counts3Years = {
+            'A': result.rows[0]['A_3'],
+            'B': result.rows[0]['B_3'],
+            'C': result.rows[0]['C_3'],
+            'D': result.rows[0]['D_3'],
+            'E': result.rows[0]['E_3'],
+            'F': result.rows[0]['F_3'],
+        };
+  
+        res.json({ counts1Years, counts2Years, counts3Years });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching data');
+    }
+  });
 
-      const counts3Years = {
-          'A': result.rows[0]['A_3'],
-          'B': result.rows[0]['B_3'],
-          'C': result.rows[0]['C_3'],
-          'D': result.rows[0]['D_3'],
-          'E': result.rows[0]['E_3'],
-          'F': result.rows[0]['F_3'],
+// 16	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum sesuai tipe. (Dalam bentuk Rupiah)
+
+app.get('/api/tipekendaraan/xpajak123rupiah', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                tidak_bayar_1_thn_tipe_a_rupiah AS "A_1",
+                tidak_bayar_1_thn_tipe_b_rupiah AS "B_1",
+                tidak_bayar_1_thn_tipe_c_rupiah AS "C_1",
+                tidak_bayar_1_thn_tipe_d_rupiah AS "D_1",
+                tidak_bayar_1_thn_tipe_e_rupiah AS "E_1",
+                tidak_bayar_1_thn_tipe_f_rupiah AS "F_1",
+                tidak_bayar_2_thn_tipe_a_rupiah AS "A_2",
+                tidak_bayar_2_thn_tipe_b_rupiah AS "B_2",
+                tidak_bayar_2_thn_tipe_c_rupiah AS "C_2",
+                tidak_bayar_2_thn_tipe_d_rupiah AS "D_2",
+                tidak_bayar_2_thn_tipe_e_rupiah AS "E_2",
+                tidak_bayar_2_thn_tipe_f_rupiah AS "F_2",
+                tidak_bayar_3_thn_tipe_a_rupiah AS "A_3",
+                tidak_bayar_3_thn_tipe_b_rupiah AS "B_3",
+                tidak_bayar_3_thn_tipe_c_rupiah AS "C_3",
+                tidak_bayar_3_thn_tipe_d_rupiah AS "D_3",
+                tidak_bayar_3_thn_tipe_e_rupiah AS "E_3",
+                tidak_bayar_3_thn_tipe_f_rupiah AS "F_3"
+            FROM pkbrekap
+            WHERE year = 2024
+        `);
+  
+        const counts1Years = {
+          'A': result.rows[0]['A_1'],
+          'B': result.rows[0]['B_1'],
+          'C': result.rows[0]['C_1'],
+          'D': result.rows[0]['D_1'],
+          'E': result.rows[0]['E_1'],
+          'F': result.rows[0]['F_1'],
       };
-
-      res.json({ counts1Years, counts2Years, counts3Years });
-  } catch (err) {
-      console.error(err);
-      res.status(500).send('Error fetching data');
-  }
-});
+  
+        const counts2Years = {
+            'A': result.rows[0]['A_2'],
+            'B': result.rows[0]['B_2'],
+            'C': result.rows[0]['C_2'],
+            'D': result.rows[0]['D_2'],
+            'E': result.rows[0]['E_2'],
+            'F': result.rows[0]['F_2'],
+        };
+  
+        const counts3Years = {
+            'A': result.rows[0]['A_3'],
+            'B': result.rows[0]['B_3'],
+            'C': result.rows[0]['C_3'],
+            'D': result.rows[0]['D_3'],
+            'E': result.rows[0]['E_3'],
+            'F': result.rows[0]['F_3'],
+        };
+  
+        res.json({ counts1Years, counts2Years, counts3Years });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching data');
+    }
+  });
 
 // Start the server
 app.listen(port, () => {

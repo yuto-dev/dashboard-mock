@@ -10,57 +10,63 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
-import TitleCard from '../../../../components/Cards/TitleCard';
+import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const XP57BarChart = () => {
+const JKPR123BarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/tipekendaraan/tidakbayar');
+                const response = await axios.get('http://localhost:3001/api/tipekendaraan/pajak123rupiah');
                 const data = response.data;
 
                 const vehicleTypes = ['Sepeda Motor', 'Mobil Penumpang', 'Truk', 'Kendaraan Roda Tiga', 'Kendaraan Elektrik', 'Kendaraan Diatas Air'];
 
                 // Map the counts to the correct vehicle types
                 const countsA = [
-                    data.counts5Years.A,
-                    data.counts7Years.A,
+                    data.counts1Years.A,
+                    data.counts2Years.A,
+                    data.counts3Years.A,
                 ];
 
                 const countsB = [
-                    data.counts5Years.B,
-                    data.counts7Years.B,
+                    data.counts1Years.B,
+                    data.counts2Years.B,
+                    data.counts3Years.B,
                 ];
 
                 const countsC = [
-                    data.counts5Years.C,
-                    data.counts7Years.C,
+                    data.counts1Years.C,
+                    data.counts2Years.C,
+                    data.counts3Years.C,
                 ];
 
                 const countsD = [
-                    data.counts5Years.D,
-                    data.counts7Years.D,
+                    data.counts1Years.D,
+                    data.counts2Years.D,
+                    data.counts3Years.D,
                 ];
 
                 const countsE = [
-                    data.counts5Years.E,
-                    data.counts7Years.E,
+                    data.counts1Years.E,
+                    data.counts2Years.E,
+                    data.counts3Years.E,
                 ];
 
                 const countsF = [
-                    data.counts5Years.F,
-                    data.counts7Years.F,
+                    data.counts1Years.F,
+                    data.counts2Years.F,
+                    data.counts3Years.F,
                 ];
                 
 
                 // Prepare the data for the chart
                 setChartData({
-                    labels: ['5 Tahun', '7 Tahun'],
+                    labels: ['2023', '2022', '2021'],
                     datasets: [
                         {
                             label: 'Sepeda Motor',
@@ -89,7 +95,7 @@ const XP57BarChart = () => {
                         },
                         {
                             label: 'Kendaraan Diatas Air',
-                            data: countsB,
+                            data: countsF,
                             backgroundColor: 'rgba(255, 159, 64, 1)',
                         },
                     ],
@@ -119,7 +125,7 @@ const XP57BarChart = () => {
     }
 
     return (
-        <TitleCard title="Jumlah Kendaraan yang Tidak Membayar Pajak (5 Tahun dan 7 Tahun)">
+        <TitleCard title="Jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum sesuai tipe. (Dalam bentuk Rupiah)">
             <Bar options={options} data={chartData} />
         </TitleCard>
     );
@@ -127,4 +133,4 @@ const XP57BarChart = () => {
 
 
 
-export default XP57BarChart;
+export default JKPR123BarChart;

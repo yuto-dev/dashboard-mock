@@ -10,18 +10,18 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
-import TitleCard from '../../../../components/Cards/TitleCard';
+import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const BPBarChart = () => {
+const JKBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/tipekendaraan/bayar');
+                const response = await axios.get('http://localhost:3001/api/tipekendaraan/count');
                 const data = response.data;
 
                 // Map letters to vehicle types
@@ -41,7 +41,7 @@ const BPBarChart = () => {
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Kendaraan Bermotor Yang Membayar Pajak Tahun Berjalan',
+                            label: 'Jumlah Kendaraan',
                             data: counts,
                             backgroundColor: [
                                 'rgba(255, 99, 132, 1)',
@@ -88,10 +88,10 @@ const BPBarChart = () => {
     }
 
     return (
-      <TitleCard title="Jumlah Kendaraan Bermotor Yang Membayar Pajak Tahun Berjalan">
+      <TitleCard title="Jumlah Kendaraan per Tipe">
         <Bar options={options} data={chartData} />
       </TitleCard>
     );
 };
 
-export default BPBarChart;
+export default JKBarChart;

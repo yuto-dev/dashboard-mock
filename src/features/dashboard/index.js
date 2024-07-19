@@ -9,13 +9,19 @@ import CircleStackIcon  from '@heroicons/react/24/outline/CircleStackIcon'
 import CreditCardIcon  from '@heroicons/react/24/outline/CreditCardIcon'
 import UserChannels from './components/UserChannels'
 import LineChart from './components/LineChart'
-import JKBarChart from './components/pkb/2JK'
-import XP57BarChart from './components/pkb/3XP57'
-import BPBarChart from './components/pkb/4BP';
+import JKBarChart from './components/pkb/charts/2JK'
+import XP57BarChart from './components/pkb/charts/3XP57'
+import BPBarChart from './components/pkb/charts/5BP'
+import KBBarChart from './components/pkb/charts/6KB'
+import XPR157BarChart from './components/pkb/charts/7XPR157';
+import POOBarChart from './components/pkb/charts/10POO';
+import POORBarChart from './components/pkb/charts/11POOR';
+import JK123BarChart from './components/pkb/charts/12JK123';
+import JKP123BarChart from './components/pkb/charts/13JKP123';
+import JKXP123BarChart from './components/pkb/charts/14JKXP123';
+import JKPR123BarChart from './components/pkb/charts/15JKPR123';
+import JKXPR123BarChart from './components/pkb/charts/16JKXPR123';
 import BarChart from './components/BarChart'
-import BarChartJakarta from './components/BarChartJakarta'
-import BarChartBali from './components/BarChartBali'
-import BarChartYogyakarta from './components/BarChartYogyakarta'
 import DashboardTopBar from './components/DashboardTopBar'
 import { useDispatch } from 'react-redux'
 import {showNotification} from '../common/headerSlice'
@@ -41,7 +47,7 @@ function Dashboard(){
         dispatch(showNotification({message : `Period updated to ${newRange.startDate} to ${newRange.endDate}`, status : 1}))
     }
 
-    const [activeRegion, setActiveRegion] = useState(11);
+    const [activeChart, setActiveChart] = useState('JKBarChart');
 
     const provinces = [
         { id: 1, name: 'Aceh' },
@@ -84,18 +90,30 @@ function Dashboard(){
         { id: 38, name: 'Papua Selatan' },
       ];
 
-    // const renderActiveChart = () => {
-    //   switch (activeChart) {
-    //     case 'BarChartJakarta':
-    //       return <BarChartJakarta />;
-    //     case 'BarChartYogyakarta':
-    //       return <BarChartYogyakarta />;
-    //     case 'BarChartBali':
-    //       return <BarChartBali />;
-    //     default:
-    //       return <BarChartJakarta />;
-    //   }
-    // };
+    const renderActiveChart = () => {
+        switch (activeChart) {
+          case 'JKBarChart':
+            return <JKBarChart />;
+          case 'XP57BarChart':
+            return <XP57BarChart />;
+          case 'BPBarChart':
+            return <BPBarChart />;
+          case 'KBBarChart':
+            return <KBBarChart />;
+          case 'XPR157BarChart':
+            return <XPR157BarChart />;
+          case 'POOBarChart':
+            return <POOBarChart />;
+          case 'POORBarChart':
+            return <POORBarChart />;
+          case 'JKP123BarChart':
+            return <JKP123BarChart />;
+          case 'JKXP123BarChart':
+            return <JKXP123BarChart />;
+          default:
+            return null;
+        }
+    };
 
     return(
         <>
@@ -103,16 +121,20 @@ function Dashboard(){
             {/* <DashboardTopBar updateDashboardPeriod={updateDashboardPeriod}/> */}
 
             <div className="dropdown mb-4">
-              <label tabIndex={0} className="btn btn-white m-1">Provinsi</label>
+              <label tabIndex={0} className="btn btn-white m-1">Select Chart</label>
               <ul 
                 tabIndex={0} 
                 className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 h-60 overflow-y-scroll flex flex-row"
               >
-                {provinces.map((province) => (
-                  <li key={province.id} className="w-full block">
-                    <a onClick={() => setActiveRegion(province.id)}>{province.name}</a>
-                  </li>
-                ))}
+                <li className="w-full block"><a onClick={() => setActiveChart('JKBarChart')}>JK Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('XP57BarChart')}>XP57 Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('BPBarChart')}>BP Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('KBBarChart')}>KB Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('XPR157BarChart')}>XPR157 Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('POOBarChart')}>POO Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('POORBarChart')}>POOR Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('JKP123BarChart')}>JKP123 Bar Chart</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('JKXP123BarChart')}>JKXP123 Bar Chart</a></li>
               </ul>
             </div>
         
@@ -127,26 +149,44 @@ function Dashboard(){
                 }
             </div>
 
-
-
         {/** ---------------------- Different charts ------------------------- */}
-            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-                <LineChart />
-                <DynamicBarChart provinceId={activeRegion} />
-            </div>
-
-        {/** ---------------------- Different charts ------------------------- */}
-            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-                <JKBarChart/>
-                <XP57BarChart />
+            <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
+                {renderActiveChart()}
             </div>
 
         {/** ---------------------- Different charts ------------------------- */}
             <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
                 <BPBarChart/>
-                <XP57BarChart />
+                <KBBarChart />
+            </div>
+        
+        {/** ---------------------- Different charts ------------------------- */}
+            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+                <XPR157BarChart/>
+                <KBBarChart />
             </div>
 
+        {/** ---------------------- Different charts ------------------------- */}
+        <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+                <POOBarChart/>
+                <POORBarChart />
+            </div>
+
+        {/** ---------------------- Different charts ------------------------- */}
+        <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+                {/* 13 */}
+                <JKP123BarChart/> 
+                {/* 14 */}
+                <JKXP123BarChart />
+            </div>
+        
+        {/** ---------------------- Different charts ------------------------- */}
+        <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+                {/* 15 */}
+                <JKPR123BarChart/>
+                <JKXPR123BarChart />
+                {/* 16 */}
+            </div>
                     
         {/** ---------------------- Different stats content 2 ------------------------- */}
 {/*         
