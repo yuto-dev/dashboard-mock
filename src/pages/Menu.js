@@ -7,7 +7,11 @@ function Menu() {
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center">
       <div className="card w-full max-w-4xl bg-base-100 rounded-xl shadow-xl p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">Main Menu</h1>
+      <div className="pt-8 pb-16 px-16">
+          <img src="./Logodagri.png" alt="PKB" className="w-full h-full object-cover rounded-lg" />
+        </div>
+        {/* <h1 className="text-3xl font-bold mb-6 text-center">Main Menu</h1> */}
+        <div className="p-4">
         <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
           {/* Button 1 */}
           <div className="flex flex-col items-center text-center">
@@ -45,6 +49,7 @@ function Menu() {
               </Link>
             <span className="text-lg">Data Provinsi</span>
           </div>
+        </div>
         </div>
       </div>
     </div>

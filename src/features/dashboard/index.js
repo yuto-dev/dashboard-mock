@@ -217,7 +217,7 @@ function Dashboard(){
             {/* <DashboardTopBar updateDashboardPeriod={updateDashboardPeriod}/> */}
 
             <div className="dropdown mb-4">
-              <label tabIndex={0} className="btn btn-white m-1">Select Chart</label>
+              <label tabIndex={0} className="btn btn-white m-1">Pilih Bagan</label>
               <ul 
                 tabIndex={0} 
                 className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 h-60 overflow-y-scroll flex flex-row"
