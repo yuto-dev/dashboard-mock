@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import TitleCard from "../../../components/Cards/TitleCard";
 import axios from 'axios';
 
+const getDataStatus = (status) => {
+  if(status  === "Data Sudah Ada")return <div className="badge badge-success">{status}</div>
+  if(status  === "Belum Isi Data")return <div className="badge badge-error">{status}</div>
+  else return <div className="badge badge-ghost">{status}</div>
+}
+
 function ProvinsiTable() {
   const [provinsiData, setProvinsiData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,13 +56,7 @@ function ProvinsiTable() {
                 <td>{provinsi.anggaranpkb}</td>
                 <td>{provinsi.realisasipkb}</td>
                 <td>{`${provinsi.persentasepkb}%`}</td>
-                <td
-                                    style={{
-                                        color: provinsi.status === "Data Sudah Ada" ? 'green' : provinsi.status === "Belum Isi Data" ? 'red' : 'inherit'
-                                    }}
-                                >
-                                    {provinsi.status}
-                                </td>
+                <td>{getDataStatus(provinsi.status)}</td>
                 
                 
               </tr>

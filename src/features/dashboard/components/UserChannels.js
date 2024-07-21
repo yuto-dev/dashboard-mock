@@ -8,6 +8,12 @@ const userSourceData = [
     {source : "Jawa Timur", count : "7,782", conversionPercent : 103.77},
 ]
 
+const getPaymentStatus = (status) => {
+    if(status  === "Paid")return <div className="badge badge-success">{status}</div>
+    if(status  === "Pending")return <div className="badge badge-error">{status}</div>
+    else return <div className="badge badge-ghost">{status}</div>
+}
+
 function UserChannels(){
     return(
         <TitleCard title={"Data Provinsi"}>
