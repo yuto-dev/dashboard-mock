@@ -32,20 +32,24 @@ function ProvinsiTable() {
           <thead>
             <tr>
               <th>No.</th>
-              <th className="normal-case">Data</th>
+              {/* <th className="normal-case">Data</th> */}
               <th className="normal-case">Daerah</th>
-              <th className="normal-case">Status</th>
-              <th className="normal-case">Anggaran PKB</th>
+              
+              <th className="normal-case">Target PKB</th>
               <th className="normal-case">Realisasi PKB</th>
-              <th className="normal-case">Persentase PKB</th>
+              <th className="normal-case">Persentase Realisasi PKB</th>
+              <th className="normal-case">Status</th>
             </tr>
           </thead>
           <tbody>
             {provinsiData.map((provinsi, index) => (
               <tr key={index}>
                 <th>{provinsi.nomor}</th>
-                <td>{provinsi.data}</td>
+                {/* <td>{provinsi.data}</td> */}
                 <td>{provinsi.daerah}</td>
+                <td>{provinsi.anggaranpkb}</td>
+                <td>{provinsi.realisasipkb}</td>
+                <td>{`${provinsi.persentasepkb}%`}</td>
                 <td
                                     style={{
                                         color: provinsi.status === "Data Sudah Ada" ? 'green' : provinsi.status === "Belum Isi Data" ? 'red' : 'inherit'
@@ -53,9 +57,8 @@ function ProvinsiTable() {
                                 >
                                     {provinsi.status}
                                 </td>
-                <td>{provinsi.anggaranpkb}</td>
-                <td>{provinsi.realisasipkb}</td>
-                <td>{`${provinsi.persentasepkb}%`}</td>
+                
+                
               </tr>
             ))}
           </tbody>

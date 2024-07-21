@@ -12,7 +12,7 @@ function Menu() {
         </div>
         {/* <h1 className="text-3xl font-bold mb-6 text-center">Main Menu</h1> */}
         <div className="p-4">
-        <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
+        <div className="grid md:grid-cols-5 grid-cols-1 gap-4">
           {/* Button 1 */}
           <div className="flex flex-col items-center text-center">
             <Link to="/app/pkb">
@@ -48,6 +48,15 @@ function Menu() {
               </button>
               </Link>
             <span className="text-lg">Data Provinsi</span>
+          </div>
+          {/* Button 5 */}
+          <div className="flex flex-col items-center text-center">
+            <a href='http://dppkb.kemendagri.go.id'>
+              <button className="btn btn-info w-full h-full p-0">
+                <img src="./chart.jpeg" alt="Analisa Data" className="w-full h-full object-cover rounded-lg" />
+              </button>
+            </a>
+            <span className="text-lg">Depdagri</span>
           </div>
         </div>
         </div>

@@ -47,8 +47,8 @@ import DoughnutChart from './components/DoughnutChart'
 import { useState } from 'react'
 
 const statsData = [
-    {title : "Anggaran", value : "Rp 52T", icon : <UserGroupIcon className='w-8 h-8'/>, description : "Total anggaran PKB nasional"},
-    {title : "Realisasi", value : "Rp 52.2T", icon : <CreditCardIcon className='w-8 h-8'/>, description : "Total anggaran PKB nasional"},
+    {title : "Target", value : "Rp 52T", icon : <UserGroupIcon className='w-8 h-8'/>, description : "Total target PKB nasional"},
+    {title : "Realisasi", value : "Rp 52.2T", icon : <CreditCardIcon className='w-8 h-8'/>, description : "Total realisasi PKB nasional"},
     {title : "Persentase Realisasi Pajak", value : "103%", icon : <CircleStackIcon className='w-8 h-8'/>, description : "Persentase Realisasi PKB"},
     // {title : "Active Users", value : "5.6k", icon : <UsersIcon className='w-8 h-8'/>, description : "↙ 300 (18%)"},
 ]
