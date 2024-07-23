@@ -33,7 +33,7 @@ const Table6 = () => {
   }, []);
 
   return (
-    <TitleCard title={"Data Baru"}>
+    <TitleCard title={"Detail Data"}>
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>

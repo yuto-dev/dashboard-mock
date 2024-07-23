@@ -29,7 +29,7 @@ function BarChart(){
         labels,
         datasets: [
           {
-            label: 'Anggaran',
+            label: 'Target',
             data: labels.map(() => { return Math.random() * 1000 + 500 }),
             backgroundColor: 'rgba(255, 99, 132, 1)',
           },

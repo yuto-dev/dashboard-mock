@@ -43,7 +43,7 @@ const Table7 = () => {
   }, []);
 
   return (
-    <TitleCard title={"Data Tidak Bayar (Rupiah)"}>
+    <TitleCard title={"Detail Data"}>
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>

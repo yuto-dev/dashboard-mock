@@ -29,7 +29,7 @@ const Table11 = () => {
   }, []);
 
   return (
-    <TitleCard title={"Jumlah Pembayaran Berdasarkan Metode"}>
+    <TitleCard title={"Detail Data"}>
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>

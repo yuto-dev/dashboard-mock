@@ -38,7 +38,7 @@ const DynamicBarChart = ({ provinceId }) => {
                   labels: ['PKB', 'BBNKB'],
                   datasets: [
                       {
-                          label: 'Anggaran',
+                          label: 'Target',
                           data: [
                               parseCurrency(data.anggaranpkb), // PKB Anggaran
                               parseCurrency(data.anggaranbbnkb), // BBNKB Anggaran

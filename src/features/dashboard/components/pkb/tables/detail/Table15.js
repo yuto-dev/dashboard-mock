@@ -36,7 +36,7 @@ const Table15 = () => {
   const vehicleTypes = Object.keys(vehicleTypeMap);
 
   return (
-    <TitleCard title={"Detail Pajak Tipe Kendaraan (Rupiah)"}>
+    <TitleCard title={"Detail Data"}>
       <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>
