@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import TitleCard from "../../../components/Cards/TitleCard";
 import axios from 'axios';
 
@@ -38,9 +39,7 @@ function ProvinsiTable() {
           <thead>
             <tr>
               <th>No.</th>
-              {/* <th className="normal-case">Data</th> */}
               <th className="normal-case">Daerah</th>
-              
               <th className="normal-case">Target PKB</th>
               <th className="normal-case">Realisasi PKB</th>
               <th className="normal-case">Persentase Realisasi PKB</th>
@@ -51,14 +50,15 @@ function ProvinsiTable() {
             {provinsiData.map((provinsi, index) => (
               <tr key={index}>
                 <th>{provinsi.nomor}</th>
-                {/* <td>{provinsi.data}</td> */}
-                <td>{provinsi.daerah}</td>
+                <td>
+                  <Link to={`/app/provinsi/${index+1}`}>
+                    {provinsi.daerah}
+                  </Link>
+                </td>
                 <td>{provinsi.anggaranpkb}</td>
                 <td>{provinsi.realisasipkb}</td>
                 <td>{`${provinsi.persentasepkb}%`}</td>
                 <td>{getDataStatus(provinsi.status)}</td>
-                
-                
               </tr>
             ))}
           </tbody>

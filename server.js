@@ -58,6 +58,44 @@ app.get('/api/province/:id', async (req, res) => {
   }
 });
 
+app.get('/api/kabupaten/:provinceId', async (req, res) => {
+    const { provinceId } = req.params;
+    try {
+      const result = await pool.query(`
+        SELECT kabupatenid, targetpkb, realisasipkb, targetbbnkb, realisasibbnkb
+        FROM kabupatendata
+        WHERE provinsiid = $1`, [provinceId]);
+  
+      if (result.rows.length > 0) {
+        res.json(result.rows);
+      } else {
+        res.status(404).json({ message: 'No kabupaten found for this province' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.get('/api/kabupatendetail/:provinceId', async (req, res) => {
+    const { provinceId } = req.params;
+    try {
+      const result = await pool.query(`
+        SELECT kabupatenkota
+        FROM kabupatenmasterdetail
+        WHERE provinsiid = $1`, [provinceId]);
+  
+      if (result.rows.length > 0) {
+        res.json(result.rows);
+      } else {
+        res.status(404).json({ message: 'No kabupaten found for this province' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // 2	Data Jumlah Kendaraan bermotor (sesuai data Pemda)
 app.get('/api/tipekendaraan/count', async (req, res) => {
   try {

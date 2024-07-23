@@ -9,6 +9,7 @@ const Page404 = lazy(() => import('../pages/protected/404'))
 const Blank = lazy(() => import('../pages/protected/Blank'))
 const Charts = lazy(() => import('../pages/protected/Charts'))
 const Leads = lazy(() => import('../pages/protected/Leads'))
+const ProvinsiDetail = lazy(() => import('../pages/protected/ProvinsiDetail'))
 const Integration = lazy(() => import('../pages/protected/Integration'))
 const Calendar = lazy(() => import('../pages/protected/Calendar'))
 const Team = lazy(() => import('../pages/protected/Team'))
@@ -36,6 +37,10 @@ const routes = [
   {
     path: '/provinsi',
     component: Leads,
+  },
+  {
+    path: '/provinsi/:id', // Dynamic route for province details
+    component: ProvinsiDetail,
   },
   {
     path: '/settings-team',
