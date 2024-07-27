@@ -34,7 +34,7 @@ const ProvinsiDetail = () => {
     <div>
 
         <Link to ="/app/provinsi">
-        <button className="bg-primary hover:secondary text-white font-bold py-2 px-4 rounded">
+        <button className="btn btn-white m-1">
           Kembali
         </button>
         </Link>

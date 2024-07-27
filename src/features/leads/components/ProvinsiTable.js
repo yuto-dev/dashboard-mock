@@ -57,7 +57,8 @@ function ProvinsiTable() {
                 </td>
                 <td>{provinsi.anggaranpkb}</td>
                 <td>{provinsi.realisasipkb}</td>
-                <td>{`${provinsi.persentasepkb}%`}</td>
+                <td style={{ color: provinsi.persentasepkb >= 100 ? 'green' : 'text-primary' }}>
+                  {`${provinsi.persentasepkb}%`}</td>
                 <td>{getDataStatus(provinsi.status)}</td>
               </tr>
             ))}
