@@ -11,7 +11,7 @@ scripts = [
     './sumatera/bengkulu.py',
     './sumatera/sumateraSelatan.py',
     './sumatera/kepulauanBangkaBelitung.py',
-    './sumatera/lampung.py'
+    './sumatera/lampung.py',
     './jawa/jakarta.py',
     './jawa/jawaBarat.py',
     './jawa/banten.py',
@@ -33,7 +33,7 @@ scripts = [
     './kepulauan/ntb.py',
     './kepulauan/ntt.py',
     './maluku/maluku.py',
-    './maluku/malukuUtara.py'
+    './maluku/malukuUtara.py',
     './papua/papua.py',
     './papua/papuaBarat.py',
     './papua/papuaBaratDaya.py',
