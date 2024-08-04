@@ -39,7 +39,7 @@ cur.execute(create_table_query)
 # Generate and insert data
 years = range(2014, 2025)  # Years from 2014 to 2024
 vehicle_types = ['A', 'B', 'C', 'D', 'E', 'F']
-kabupaten = 11
+kabupaten = 39
 
 # Dictionary to keep track of the previous year's jumlahkendaraan for each vehicle type
 previous_values = {vehicle_type: random.randint(1000, 2000) for vehicle_type in vehicle_types}

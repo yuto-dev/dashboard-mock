@@ -205,16 +205,20 @@ app.get('/api/tipekendaraan/bayar', async (req, res) => {
 
 app.get('/api/tipekendaraan/baru', async (req, res) => {
   try {
+    // Query for 2024 data, grouped by jeniskendaraan
     const result2024 = await pool.query(`
-      SELECT jeniskendaraan, jumlahkendaraan
+      SELECT jeniskendaraan, SUM(jumlahkendaraan) AS jumlahkendaraan
       FROM newpkbrekap
       WHERE tahun = 2024
+      GROUP BY jeniskendaraan
     `);
 
+    // Query for 2023 data, grouped by jeniskendaraan
     const result2023 = await pool.query(`
-      SELECT jeniskendaraan, jumlahkendaraan
+      SELECT jeniskendaraan, SUM(jumlahkendaraan) AS jumlahkendaraan
       FROM newpkbrekap
       WHERE tahun = 2023
+      GROUP BY jeniskendaraan
     `);
 
     // Ensure the key names match the column names returned from the query
@@ -248,15 +252,17 @@ app.get('/api/tipekendaraan/baru', async (req, res) => {
 
 app.get('/api/tipekendaraan/tidakbayarrupiah', async (req, res) => {
   try {
-    // Fetch data for 2024
+    // Fetch and group data for 2024, summing the relevant columns
     const result2024 = await pool.query(`
-      SELECT jeniskendaraan, 
-             target, 
-             realisasi, 
-             nilaikendaraantidakbayar5tahun, 
-             nilaikendaraantidakbayar7tahun
+      SELECT 
+        jeniskendaraan, 
+        SUM(target) AS target, 
+        SUM(realisasi) AS realisasi, 
+        SUM(nilaikendaraantidakbayar5tahun) AS nilaikendaraantidakbayar5tahun, 
+        SUM(nilaikendaraantidakbayar7tahun) AS nilaikendaraantidakbayar7tahun
       FROM newpkbrekap
       WHERE tahun = 2024
+      GROUP BY jeniskendaraan
     `);
 
     // Prepare objects to hold the results
@@ -266,16 +272,14 @@ app.get('/api/tipekendaraan/tidakbayarrupiah', async (req, res) => {
 
     // Process the fetched data
     result2024.rows.forEach(row => {
-      const { jeniskendaraan, target, realisasi, 
-              nilaikendaraantidakbayar5tahun, 
-              nilaikendaraantidakbayar7tahun } = row;
+      const { jeniskendaraan, target, realisasi, nilaikendaraantidakbayar5tahun, nilaikendaraantidakbayar7tahun } = row;
 
       // Calculate count1years by subtracting realisasi from target
-      count1years[jeniskendaraan] = (count1years[jeniskendaraan] || 0) + (target - realisasi);
+      count1years[jeniskendaraan] = (target || 0) - (realisasi || 0);
 
       // Directly assign values for count5years and count7years
-      count5years[jeniskendaraan] = (count5years[jeniskendaraan] || 0) + nilaikendaraantidakbayar5tahun;
-      count7years[jeniskendaraan] = (count7years[jeniskendaraan] || 0) + nilaikendaraantidakbayar7tahun;
+      count5years[jeniskendaraan] = nilaikendaraantidakbayar5tahun || 0;
+      count7years[jeniskendaraan] = nilaikendaraantidakbayar7tahun || 0;
     });
 
     // Send the response
@@ -289,6 +293,7 @@ app.get('/api/tipekendaraan/tidakbayarrupiah', async (req, res) => {
     res.status(500).send('Error fetching data');
   }
 });
+
 
 
 
@@ -354,8 +359,8 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
     // Query for 2023 data
     const result2023 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2023
     `);
@@ -363,8 +368,8 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
     // Query for 2022 data
     const result2022 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2022
     `);
@@ -372,8 +377,8 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
     // Query for 2021 data
     const result2021 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2021
     `);
@@ -442,8 +447,8 @@ app.get('/api/tipekendaraan/pajak123', async (req, res) => {
     // Query for 2024 data
     const result2024 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2024
     `);
@@ -451,8 +456,8 @@ app.get('/api/tipekendaraan/pajak123', async (req, res) => {
     // Query for 2023 data
     const result2023 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2023
     `);
@@ -460,8 +465,8 @@ app.get('/api/tipekendaraan/pajak123', async (req, res) => {
     // Query for 2022 data
     const result2022 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2022
     `);
@@ -515,9 +520,9 @@ app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
     // Query for 2024 data
     const result2024 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan,
-        kendaraanbayar
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
       FROM newpkbrekap
       WHERE tahun = 2024
     `);
@@ -525,9 +530,9 @@ app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
     // Query for 2023 data
     const result2023 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan,
-        kendaraanbayar
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
       FROM newpkbrekap
       WHERE tahun = 2023
     `);
@@ -535,9 +540,9 @@ app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
     // Query for 2022 data
     const result2022 = await pool.query(`
       SELECT 
-        jeniskendaraan,
-        jumlahkendaraan,
-        kendaraanbayar
+        SUM(jeniskendaraan) AS "jeniskendaraan",
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
       FROM newpkbrekap
       WHERE tahun = 2022
     `);

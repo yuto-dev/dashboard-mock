@@ -35,7 +35,7 @@ cur.execute(create_table_query)
 # Generate and insert data
 years = range(2014, 2025)  # Years from 2014 to 2024
 vehicle_types = ['A', 'B', 'C', 'D', 'E', 'F']
-kabupaten = 11
+kabupaten = 39
 
 # Dictionaries to keep track of the previous year's values for each vehicle type
 previous_jumlahonline = {vehicle_type: random.randint(100, 500) for vehicle_type in vehicle_types}

@@ -22,6 +22,8 @@ import JKP123BarChart from './components/pkb/charts/13JKP123';
 import JKXP123BarChart from './components/pkb/charts/14JKXP123';
 import JKPR123BarChart from './components/pkb/charts/15JKPR123';
 import JKXPR123BarChart from './components/pkb/charts/16JKXPR123';
+import additionalChart from './components/pkb/charts/additional';
+import additionalChartRupiah from './components/pkb/charts/additional';
 
 import Selisih13 from './components/pkb/tables/selisih/Selisih13';
 import Selisih15 from './components/pkb/tables/selisih/Selisih15';
@@ -134,6 +136,10 @@ function Dashboard(){
             return <JKPR123BarChart />;
           case 'JKXPR123BarChart':
             return <JKXPR123BarChart />;
+          case 'additionalChart':
+            return <additionalChart />;
+          case 'additionalChartRupiah':
+            return <additionalChartRupiah />;
           default:
             return null;
         }
@@ -204,6 +210,10 @@ function Dashboard(){
         // 16
           case 'JKXPR123BarChart':
             return <Table16 />;
+          case 'additionalChart':
+            return <Table2 />;
+          case 'additionalChartRupiah':
+            return <Table2 />;
           default:
             return null;
         }
@@ -234,6 +244,8 @@ function Dashboard(){
                 <li className="w-full block"><a onClick={() => setActiveChart('JKXP123BarChart')}>14. Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe</a></li>
                 <li className="w-full block"><a onClick={() => setActiveChart('JKPR123BarChart')}>15. Jumlah Kendaraan Bermotor yang Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe (Dalam Rupiah)</a></li>
                 <li className="w-full block"><a onClick={() => setActiveChart('JKXPR123BarChart')}>16. Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe (Dalam Rupiah)</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('additionalChart')}>Jumlah Kendaraan Bermotor Yang Tidak Membayar Pajak</a></li>
+                <li className="w-full block"><a onClick={() => setActiveChart('additionalChartRupiah')}>Nilai Kendaraan Bermotor Yang Tidak Membayar Pajak (Dalam Rupiah)</a></li>
               </ul>
             </div>
         
