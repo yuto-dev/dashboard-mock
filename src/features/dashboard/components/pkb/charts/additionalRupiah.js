@@ -14,7 +14,7 @@ import TitleCard from '../../../../../components/Cards/TitleCard';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-function AdditionalChart(){
+function AdditionalChartRupiah(){
 
     const options = {
         responsive: true,
@@ -32,39 +32,39 @@ function AdditionalChart(){
         datasets: [
             {
                 label: 'Sepeda Motor',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(255, 99, 132, 1)',
             },
             {
                 label: 'Mobil Penumpang',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(53, 162, 235, 1)',
             },
             {
                 label: 'Truk',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(255, 206, 86, 1)',
             },
             {
                 label: 'Kendaraan Roda Tiga',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(75, 192, 192, 1)',
             },
             {
                 label: 'Kendaraan Elektrik',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(153, 102, 255, 1)',
             },
             {
                 label: 'Kendaraan Diatas Air',
-                data: labels.map(() => { return Math.random() * 10000 + 500 }),
+                data: labels.map(() => { return Math.random() * 1000000 + 500 }),
                 backgroundColor: 'rgba(255, 159, 64, 1)',
             },
         ],
       };
 
     return(
-      <TitleCard title={"Jumlah Kendaraan Bermotor Yang Tidak Membayar Pajak"} topMargin="mt-2">
+      <TitleCard title={"Nilai Kendaraan Bermotor Yang Tidak Membayar Pajak (Dalam Rupiah)"} topMargin="mt-2">
             <Bar options={options} data={data} />
       </TitleCard>
 
@@ -72,4 +72,5 @@ function AdditionalChart(){
 }
 
 
-export default AdditionalChart
+
+export default AdditionalChartRupiah;

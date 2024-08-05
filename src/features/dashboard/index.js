@@ -22,8 +22,8 @@ import JKP123BarChart from './components/pkb/charts/13JKP123';
 import JKXP123BarChart from './components/pkb/charts/14JKXP123';
 import JKPR123BarChart from './components/pkb/charts/15JKPR123';
 import JKXPR123BarChart from './components/pkb/charts/16JKXPR123';
-import additionalChart from './components/pkb/charts/additional';
-import additionalChartRupiah from './components/pkb/charts/additional';
+import AdditionalChart from './components/pkb/charts/additional';
+import AdditionalChartRupiah from './components/pkb/charts/additionalRupiah';
 
 import Selisih13 from './components/pkb/tables/selisih/Selisih13';
 import Selisih15 from './components/pkb/tables/selisih/Selisih15';
@@ -137,9 +137,9 @@ function Dashboard(){
           case 'JKXPR123BarChart':
             return <JKXPR123BarChart />;
           case 'additionalChart':
-            return <additionalChart />;
+            return <AdditionalChart />;
           case 'additionalChartRupiah':
-            return <additionalChartRupiah />;
+            return <AdditionalChartRupiah />;
           default:
             return null;
         }
@@ -175,6 +175,10 @@ function Dashboard(){
         // 16
           case 'JKXPR123BarChart':
             return <Selisih15 />;
+          case 'additionalChart':
+              return <Table2 />;
+          case 'additionalChartRupiah':
+              return <Table2 />;
           default:
             return null;
         }

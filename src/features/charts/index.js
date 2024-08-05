@@ -24,7 +24,7 @@ function Charts(){
 
     return(
         <>
-        <Datepicker 
+        {/* <Datepicker 
                 containerClassName="w-72" 
                 value={dateValue} 
                 theme={"light"}
@@ -34,7 +34,7 @@ function Charts(){
                 onChange={handleDatePickerValueChange} 
                 showShortcuts={true} 
                 primaryColor={"white"} 
-            /> 
+            />  */}
         {/** ---------------------- Different charts ------------------------- */}
             <div className="grid lg:grid-cols-2 mt-0 grid-cols-1 gap-6">
                 <StackBarChart />
