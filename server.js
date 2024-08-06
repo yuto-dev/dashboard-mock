@@ -753,6 +753,129 @@ app.get('/api/tipekendaraan/xpajak123rupiah', async (req, res) => {
   }
 });
 
+//
+// PEMEKARAN
+//
+
+app.get('/api/pemekaran/platbm', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT plat_bm
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/platbpserix', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT plat_bp_seri_x
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/tipekosong', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT tipe_kosong
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/tipegolkendkosong', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT tipe_ada_golkend_kosong 
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/noplatganda', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT no_plat_ganda
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/nochasisganda', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT no_chasis_ganda
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/pemekaran/nomesinganda', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT no_mesin_ganda
+      FROM bermasalah`);
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`API running at http://localhost:${port}`);

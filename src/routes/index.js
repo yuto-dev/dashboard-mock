@@ -4,6 +4,7 @@ import { lazy } from 'react'
 
 const PBK = lazy(() => import('../pages/protected/Dashboard'))
 const BBNKB = lazy(() => import('../pages/protected/BBNKB'))
+const Pemekaran = lazy(() => import('../pages/protected/Pemekaran'))
 const Welcome = lazy(() => import('../pages/protected/Welcome'))
 const Page404 = lazy(() => import('../pages/protected/404'))
 const Blank = lazy(() => import('../pages/protected/Blank'))
@@ -29,6 +30,10 @@ const routes = [
   {
     path: '/bbnkb', // the url
     component: BBNKB, // view rendered
+  },
+  {
+    path: '/pemekaran', // the url
+    component: Pemekaran, // view rendered
   },
   {
     path: '/welcome', // the url

@@ -44,6 +44,11 @@ const routes = [
     icon: <Squares2X2Icon className={iconClasses}/>, // icon component
     name: 'Data Provinsi', // name that appear in Sidebar
   },
+  {
+    path: '/app/pemekaran', // url
+    icon: <Squares2X2Icon className={iconClasses}/>, // icon component
+    name: 'Pemekaran', // name that appear in Sidebar
+  },
   // {
   //   path: '/app/transactions', // url
   //   icon: <CurrencyDollarIcon className={iconClasses}/>, // icon component

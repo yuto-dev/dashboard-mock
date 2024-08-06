@@ -1,0 +1,5 @@
+provinsi pyscripts\db.py && newdata.csv
+kabupatendata pyscripts\kabupaten\universalData.py
+kabupatenmasterdetail pyscripts\kabupaten\aioDetail.py
+newpkbrekap pyscripts\rekap\newpkbrekap.py
+pkbmetode pyscripts\rekap\pkbmetode.py
