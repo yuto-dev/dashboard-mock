@@ -359,116 +359,31 @@ app.get('/api/tipekendaraan/count123', async (req, res) => {
     // Query for 2023 data
     const result2023 = await pool.query(`
       SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
+        jeniskendaraan,
         SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2023
+      GROUP BY jeniskendaraan
     `);
 
     // Query for 2022 data
     const result2022 = await pool.query(`
       SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
+        jeniskendaraan,
         SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2022
+      GROUP BY jeniskendaraan
     `);
 
     // Query for 2021 data
     const result2021 = await pool.query(`
       SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
+        jeniskendaraan,
         SUM(jumlahkendaraan) AS "jumlahkendaraan"
       FROM newpkbrekap
       WHERE tahun = 2021
-    `);
-
-    // Log the results for debugging
-    console.log('Result 2023:', result2023.rows);
-    console.log('Result 2022:', result2022.rows);
-    console.log('Result 2021:', result2021.rows);
-
-    // Prepare objects to hold counts for each type
-    const counts1Years = {};
-    const counts2Years = {};
-    const counts3Years = {};
-
-    // Map to store data by jenisKendaraan
-    const data2023 = result2023.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
-
-    const data2022 = result2022.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
-
-    const data2021 = result2021.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
-
-    // Log the processed data
-    console.log('Data 2023:', data2023);
-    console.log('Data 2022:', data2022);
-    console.log('Data 2021:', data2021);
-
-    // Calculate counts
-    ['A', 'B', 'C', 'D', 'E', 'F'].forEach(type => {
-      counts1Years[type] = (data2023[type] || 0)
-      counts2Years[type] = (data2022[type] || 0)
-      counts3Years[type] = (data2021[type] || 0); // For 3 years, use the data from 2021
-    });
-
-    // Log the final counts
-    console.log('Counts 1 Year:', counts1Years);
-    console.log('Counts 2 Years:', counts2Years);
-    console.log('Counts 3 Years:', counts3Years);
-
-    // Send the response
-    res.json({
-      counts1Years,
-      counts2Years,
-      counts3Years,
-    });
-  } catch (err) {
-    console.error('Error fetching tipekendaraan/count123 data:', err);
-    res.status(500).send('Error fetching data');
-  }
-});
-
-
-
-// 13	Data jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
-
-app.get('/api/tipekendaraan/pajak123', async (req, res) => {
-  try {
-    // Query for 2024 data
-    const result2024 = await pool.query(`
-      SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan"
-      FROM newpkbrekap
-      WHERE tahun = 2024
-    `);
-
-    // Query for 2023 data
-    const result2023 = await pool.query(`
-      SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan"
-      FROM newpkbrekap
-      WHERE tahun = 2023
-    `);
-
-    // Query for 2022 data
-    const result2022 = await pool.query(`
-      SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan"
-      FROM newpkbrekap
-      WHERE tahun = 2022
+      GROUP BY jeniskendaraan
     `);
 
     // Prepare objects to hold counts for each type
@@ -476,27 +391,17 @@ app.get('/api/tipekendaraan/pajak123', async (req, res) => {
     const counts2Years = {};
     const counts3Years = {};
 
-    // Map to store data by jenisKendaraan
-    const data2024 = result2024.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
+    // Map to store data by jeniskendaraan
+    result2023.rows.forEach(row => {
+      counts1Years[row.jeniskendaraan] = row.jumlahkendaraan;
+    });
 
-    const data2023 = result2023.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
+    result2022.rows.forEach(row => {
+      counts2Years[row.jeniskendaraan] = row.jumlahkendaraan;
+    });
 
-    const data2022 = result2022.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = row.jumlahkendaraan;
-      return acc;
-    }, {});
-
-    // Calculate counts
-    ['A', 'B', 'C', 'D', 'E', 'F'].forEach(type => {
-      counts1Years[type] = (data2024[type] || 0)
-      counts2Years[type] = (data2023[type] || 0)
-      counts3Years[type] = (data2022[type] || 0); // For 3 years, use the data from 2022
+    result2021.rows.forEach(row => {
+      counts3Years[row.jeniskendaraan] = row.jumlahkendaraan;
     });
 
     // Send the response
@@ -513,38 +418,38 @@ app.get('/api/tipekendaraan/pajak123', async (req, res) => {
 
 
 
-// 14	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
+// 13	Data jumlah Kendaraan Bermotor yang membayar Pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
 
-app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
+app.get('/api/tipekendaraan/pajak123', async (req, res) => {
   try {
-    // Query for 2024 data
-    const result2024 = await pool.query(`
-      SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan",
-        SUM(kendaraanbayar) AS "kendaraanbayar"
-      FROM newpkbrekap
-      WHERE tahun = 2024
-    `);
-
     // Query for 2023 data
     const result2023 = await pool.query(`
       SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        jeniskendaraan,
         SUM(kendaraanbayar) AS "kendaraanbayar"
       FROM newpkbrekap
       WHERE tahun = 2023
+      GROUP BY jeniskendaraan
     `);
 
     // Query for 2022 data
     const result2022 = await pool.query(`
       SELECT 
-        SUM(jeniskendaraan) AS "jeniskendaraan",
-        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        jeniskendaraan,
         SUM(kendaraanbayar) AS "kendaraanbayar"
       FROM newpkbrekap
       WHERE tahun = 2022
+      GROUP BY jeniskendaraan
+    `);
+
+    // Query for 2021 data
+    const result2021 = await pool.query(`
+      SELECT 
+        jeniskendaraan,
+        SUM(kendaraanbayar) AS "kendaraanbayar"
+      FROM newpkbrekap
+      WHERE tahun = 2021
+      GROUP BY jeniskendaraan
     `);
 
     // Prepare objects to hold counts for each type
@@ -552,36 +457,17 @@ app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
     const counts2Years = {};
     const counts3Years = {};
 
-    // Map to store data by jenisKendaraan
-    const data2024 = result2024.rows.reduce((acc, row) => {
-      acc[row.jenisKendaraan] = {
-        jumlah: row.jumlahKendaraan,
-        bayar: row.kendaraanBayar
-      };
-      return acc;
-    }, {});
+    // Map to store data by jeniskendaraan
+    result2023.rows.forEach(row => {
+      counts1Years[row.jeniskendaraan] = row.kendaraanbayar;
+    });
 
-    const data2023 = result2023.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = {
-        jumlah: row.jumlahkendaraan,
-        bayar: row.kendaraanbayar
-      };
-      return acc;
-    }, {});
+    result2022.rows.forEach(row => {
+      counts2Years[row.jeniskendaraan] = row.kendaraanbayar;
+    });
 
-    const data2022 = result2022.rows.reduce((acc, row) => {
-      acc[row.jeniskendaraan] = {
-        jumlah: row.jumlahkendaraan,
-        bayar: row.kendaraanbayar
-      };
-      return acc;
-    }, {});
-
-    // Calculate counts
-    ['A', 'B', 'C', 'D', 'E', 'F'].forEach(type => {
-      counts1Years[type] = (data2024[type] ? data2024[type].jumlah - data2024[type].bayar : 0);
-      counts2Years[type] = (data2023[type] ? data2023[type].jumlah - data2023[type].bayar : 0);
-      counts3Years[type] = (data2022[type] ? data2022[type].jumlah - data2022[type].bayar : 0);
+    result2021.rows.forEach(row => {
+      counts3Years[row.jeniskendaraan] = row.kendaraanbayar;
     });
 
     // Send the response
@@ -589,6 +475,76 @@ app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
       counts1Years,
       counts2Years,
       counts3Years,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching data');
+  }
+});
+
+
+
+
+// 14	Data jumlah Kendaraan Bermotor yang tidak membayar pajak 1,2 dan 3 tahun sebelum (sesuai tipe)
+
+app.get('/api/tipekendaraan/xpajak123', async (req, res) => {
+  try {
+    // Query for 2024 data
+    const result2024 = await pool.query(`
+      SELECT 
+        jeniskendaraan,
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
+      FROM newpkbrekap
+      WHERE tahun = 2024
+      GROUP BY jeniskendaraan
+    `);
+
+    // Query for 2023 data
+    const result2023 = await pool.query(`
+      SELECT 
+        jeniskendaraan,
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
+      FROM newpkbrekap
+      WHERE tahun = 2023
+      GROUP BY jeniskendaraan
+    `);
+
+    // Query for 2022 data
+    const result2022 = await pool.query(`
+      SELECT 
+        jeniskendaraan,
+        SUM(jumlahkendaraan) AS "jumlahkendaraan",
+        SUM(kendaraanbayar) AS "kendaraanbayar"
+      FROM newpkbrekap
+      WHERE tahun = 2022
+      GROUP BY jeniskendaraan
+    `);
+
+    // Prepare objects to hold counts for each type
+    const counts1Years = {};
+    const counts2Years = {};
+    const counts3Years = {};
+
+    // Map to store data by jeniskendaraan
+    result2024.rows.forEach(row => {
+      counts1Years[row.jeniskendaraan] = row.jumlahkendaraan - row.kendaraanbayar; // 1 year ago = 2023
+    });
+
+    result2023.rows.forEach(row => {
+      counts2Years[row.jeniskendaraan] = row.jumlahkendaraan - row.kendaraanbayar; // 2 years ago = 2022
+    });
+
+    result2022.rows.forEach(row => {
+      counts3Years[row.jeniskendaraan] = row.jumlahkendaraan - row.kendaraanbayar; // 3 years ago = 2021
+    });
+
+    // Send the response
+    res.json({
+      counts1Years, // 2023 data
+      counts2Years, // 2022 data
+      counts3Years, // 2021 data
     });
   } catch (err) {
     console.error(err);

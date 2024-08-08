@@ -135,12 +135,24 @@ const Selisih15 = () => {
             rows.map((row, index) => (
               <tr key={index}>
                 <td>{row.tipe}</td>
-                <td style={{ color: row.tahun1 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun1)}</td>
-                <td style={{ color: row.tahun1 >= 100 ? 'green' : 'red' }}>{row.percentTahun1}%</td>
-                <td style={{ color: row.tahun2 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun2)}</td>
-                <td style={{ color: row.tahun2 >= 100 ? 'green' : 'red' }}>{row.percentTahun2}%</td>
-                <td style={{ color: row.tahun3 >= 0 ? 'green' : 'red' }}>{formatCurrency(row.tahun3)}</td>
-                <td style={{ color: row.tahun3 >= 100 ? 'green' : 'red' }}>{row.percentTahun3}%</td>
+                <td>
+                  {formatCurrency(row.tahun1)}
+                </td>
+                <td style={{ color: row.percentTahun1 >= 0 ? 'green' : 'red' }}>
+                  {row.percentTahun1}%
+                </td>
+                <td>
+                  {formatCurrency(row.tahun2)}
+                </td>
+                <td style={{ color: row.percentTahun2 >= 0 ? 'green' : 'red' }}>
+                  {row.percentTahun2}%
+                </td>
+                <td>
+                  {formatCurrency(row.tahun3)}
+                </td>
+                <td style={{ color: row.percentTahun3 >= 0 ? 'green' : 'red' }}>
+                  {row.percentTahun3}%
+                </td>
               </tr>
             ))
           }
