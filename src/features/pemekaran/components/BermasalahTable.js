@@ -11,8 +11,8 @@ const BMTable = () => {
             try {
                 // Define the Uraian values, their corresponding endpoints, and keys
                 const uraianValues = [
-                    { uraian: 'Plat BM', endpoint: 'platbm', key: 'plat_bm' },
-                    { uraian: 'Plat BP Seri X', endpoint: 'platbpserix', key: 'plat_bp_seri_x' },
+                    { uraian: 'Plat Lama Sebelum Pemekaran', endpoint: 'platbm', key: 'plat_bm' },
+                    { uraian: 'Plat Khusus Daerah', endpoint: 'platbpserix', key: 'plat_bp_seri_x' },
                     { uraian: 'Tipe Kosong', endpoint: 'tipekosong', key: 'tipe_kosong' },
                     { uraian: 'Tipe Ada, Golkend Kosong', endpoint: 'tipegolkendkosong', key: 'tipe_ada_golkend_kosong' },
                     { uraian: 'No Plat Ganda', endpoint: 'noplatganda', key: 'no_plat_ganda' },

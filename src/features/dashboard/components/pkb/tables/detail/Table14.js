@@ -53,9 +53,9 @@ const Table14 = () => {
               <tr key={index}>
                 <th>{index + 1}</th>
                 <td>{vehicleTypeMap[type]}</td>
-                <td>{formatCurrency(data.counts1Years[type] || 0)}</td>
-                <td>{formatCurrency(data.counts2Years[type] || 0)}</td>
-                <td>{formatCurrency(data.counts3Years[type] || 0)}</td>
+                <td>{data.counts1Years[type] || 0}</td>
+                <td>{data.counts2Years[type] || 0}</td>
+                <td>{data.counts3Years[type] || 0}</td>
               </tr>
             ))}
           </tbody>

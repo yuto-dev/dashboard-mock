@@ -282,17 +282,32 @@ app.get('/api/tipekendaraan/tidakbayarrupiah', async (req, res) => {
       count7years[jeniskendaraan] = nilaikendaraantidakbayar7tahun || 0;
     });
 
-    // Send the response
+    // Function to sort an object by keys
+    const sortObjectByKey = obj => 
+      Object.keys(obj)
+        .sort() // Sort keys alphabetically
+        .reduce((sortedObj, key) => {
+          sortedObj[key] = obj[key];
+          return sortedObj;
+        }, {});
+
+    // Sort the result objects by their keys (jeniskendaraan)
+    const sortedCounts1Years = sortObjectByKey(count1years);
+    const sortedCounts5Years = sortObjectByKey(count5years);
+    const sortedCounts7Years = sortObjectByKey(count7years);
+
+    // Send the sorted response
     res.json({
-      counts1Years: count1years,
-      counts5Years: count5years,
-      counts7Years: count7years,
+      counts1Years: sortedCounts1Years,
+      counts5Years: sortedCounts5Years,
+      counts7Years: sortedCounts7Years,
     });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error fetching data');
   }
 });
+
 
 
 
