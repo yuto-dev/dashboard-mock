@@ -18,11 +18,12 @@ const formatNumber = (value) => {
 
 const Table3 = () => {
   const [data, setData] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/tipekendaraan/tidakbayar');
+        const response = await axios.get(`${apiUrl}/api/tipekendaraan/tidakbayar`);
         const counts5Years = response.data.counts5Years;
         const counts7Years = response.data.counts7Years;
 

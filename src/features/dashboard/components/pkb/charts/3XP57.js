@@ -21,11 +21,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const XP57BarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/tipekendaraan/tidakbayar');
+                const response = await axios.get(`${apiUrl}/api/tipekendaraan/tidakbayar`);
                 const data = response.data;
 
                 const vehicleTypes = ['Sepeda Motor', 'Mobil Penumpang', 'Truk', 'Kendaraan Roda Tiga', 'Kendaraan Elektrik', 'Kendaraan Diatas Air'];

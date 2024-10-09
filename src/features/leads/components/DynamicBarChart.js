@@ -26,11 +26,12 @@ const DynamicBarChart = ({ provinceId }) => {
     const [chartData, setChartData] = useState(null);
     const [provinceName, setProvinceName] = useState('');
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.REACT_APP_API_URL;
     
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/api/province/${provinceId}`);
+                const response = await axios.get(`${apiUrl}/api/province/${provinceId}`);
                 const data = response.data;
 
                 // Function to parse the currency string

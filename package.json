@@ -7,6 +7,8 @@
     "client": "react-scripts start",
     "dev": "concurrently \"npm run client\" \"npm run start\"",
     "build": "react-scripts build",
+    "serve": "serve -s build",
+    "prod": "concurrently \"npm run start\" \"npm run serve\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -21,6 +23,7 @@
     "chart.js": "^4.0.1",
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
+    "cors-anywhere": "^0.4.4",
     "daisyui": "^2.41.0",
     "dayjs": "^1.11.7",
     "express": "^4.19.2",

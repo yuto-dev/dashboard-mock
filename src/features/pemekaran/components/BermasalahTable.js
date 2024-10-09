@@ -23,8 +23,16 @@ const BMTable = () => {
                 // Fetch data from all endpoints
                 const fetchedData = await Promise.all(
                     uraianValues.map(({ endpoint }) =>
-                        axios.get(`http://localhost:3001/api/pemekaran/${endpoint}`)
-                    )
+                        axios.get(`http://202.10.40.126:3001/api/pemekaran/${endpoint}`)
+                    ),
+
+                    axios.get('http://202.10.40.126:3001/api/tipekendaraan/count')
+                        .then(response => {
+                            console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                        })
                 );
 
                 // Prepare the table data

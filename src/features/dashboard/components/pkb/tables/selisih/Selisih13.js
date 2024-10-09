@@ -72,11 +72,12 @@ const Selisih13 = () => {
     const [data, setData] = useState(null);
     const [percentage, setPercentage] = useState(null);
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.REACT_APP_API_URL;
   
     useEffect(() => {
       const fetchDataAsync = async () => {
-        const data1 = await fetchData('http://localhost:3001/api/tipekendaraan/pajak123');
-        const data2 = await fetchData('http://localhost:3001/api/tipekendaraan/xpajak123');
+        const data1 = await fetchData(`${apiUrl}/api/tipekendaraan/pajak123`);
+        const data2 = await fetchData(`${apiUrl}/api/tipekendaraan/xpajak123`);
         
         if (data1 && data2) {
           const difference = calculateDifference(data1, data2);

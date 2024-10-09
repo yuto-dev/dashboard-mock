@@ -12,11 +12,12 @@ const getDataStatus = (status) => {
 function ProvinsiTable() {
   const [provinsiData, setProvinsiData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/province/all');
+        const response = await axios.get(`${apiUrl}/api/province/all`);
         setProvinsiData(response.data);
         setLoading(false);
       } catch (error) {

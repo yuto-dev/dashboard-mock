@@ -20,11 +20,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const KBBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/tipekendaraan/baru');
+                const response = await axios.get(`${apiUrl}/api/tipekendaraan/baru`);
                 const data = response.data;
 
                 // Map letters to vehicle types

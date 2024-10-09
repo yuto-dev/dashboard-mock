@@ -10,8 +10,9 @@ import KabupatenTable from './detailTable/detailTable';
 import { Routes, Route } from 'react-router-dom'; // Import Routes and Route
 
 const fetchDataById = async (id) => {
+  const apiUrl = process.env.REACT_APP_API_URL;
     // Example: Fetch data from an API endpoint that accepts an ID
-    const response = await fetch(`http://localhost:3001/api/province/${id}`);
+    const response = await fetch(`${apiUrl}/api/province/${id}`);
     const data = await response.json();
     return data;
   };

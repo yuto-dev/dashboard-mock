@@ -14,11 +14,12 @@ const formatCurrency = (value) => {
 
 const Table10 = () => {
   const [data, setData] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/paymethod/count');
+        const response = await axios.get(`${apiUrl}/api/paymethod/count`);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);

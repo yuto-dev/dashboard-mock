@@ -1,246 +1,187 @@
 import DashboardStats from './components/DashboardStats'
-import AmountStats from './components/AmountStats'
-import PageStats from './components/PageStats'
-import DynamicBarChart from './components/DynamicBarChart';
-import PKBBarChart from './components/PKBBarChart';
-import UserGroupIcon  from '@heroicons/react/24/outline/UserGroupIcon'
-import UsersIcon  from '@heroicons/react/24/outline/UsersIcon'
-import CircleStackIcon  from '@heroicons/react/24/outline/CircleStackIcon'
-import CreditCardIcon  from '@heroicons/react/24/outline/CreditCardIcon'
-import UserChannels from './components/UserChannels'
-import LineChart from './components/LineChart'
-
-import JKBarChart from './components/pkb/charts/2JK'
-import XP57BarChart from './components/pkb/charts/3XP57'
-import BPBarChart from './components/pkb/charts/5BP'
-import KBBarChart from './components/pkb/charts/6KB'
-import XPR157BarChart from './components/pkb/charts/7XPR157';
-import POOBarChart from './components/pkb/charts/10POO';
-import POORBarChart from './components/pkb/charts/11POOR';
-import JK123BarChart from './components/pkb/charts/12JK123';
-import JKP123BarChart from './components/pkb/charts/13JKP123';
-import JKXP123BarChart from './components/pkb/charts/14JKXP123';
-import JKPR123BarChart from './components/pkb/charts/15JKPR123';
-import JKXPR123BarChart from './components/pkb/charts/16JKXPR123';
-import AdditionalChart from './components/pkb/charts/additional';
-import AdditionalChartRupiah from './components/pkb/charts/additionalRupiah';
-
-import Selisih13 from './components/pkb/tables/selisih/Selisih13';
-import Selisih15 from './components/pkb/tables/selisih/Selisih15';
-
-import Table2 from './components/pkb/tables/detail/Table2';
-import Table3 from './components/pkb/tables/detail/Table3';
-import Table5 from './components/pkb/tables/detail/Table5';
-import Table6 from './components/pkb/tables/detail/Table6';
-import Table7 from './components/pkb/tables/detail/Table7';
-import Table10 from './components/pkb/tables/detail/Table10';
-import Table11 from './components/pkb/tables/detail/Table11';
-import Table12 from './components/pkb/tables/detail/Table12';
-import Table13 from './components/pkb/tables/detail/Table13';
-import Table14 from './components/pkb/tables/detail/Table14';
-import Table15 from './components/pkb/tables/detail/Table15';
-import Table16 from './components/pkb/tables/detail/Table16';
-
-import BarChart from './components/BarChart'
-import DashboardTopBar from './components/DashboardTopBar'
-import { useDispatch } from 'react-redux'
-import {showNotification} from '../common/headerSlice'
-import DoughnutChart from './components/DoughnutChart'
-import { useState } from 'react'
+import UserGroupIcon from '@heroicons/react/24/outline/UserGroupIcon'
+import CircleStackIcon from '@heroicons/react/24/outline/CircleStackIcon'
+import CreditCardIcon from '@heroicons/react/24/outline/CreditCardIcon'
+import { useState, useEffect } from 'react';
+import FlexBarChart from './components/pkb/charts/flexBarChart'
 
 const statsData = [
-    {title : "Target", value : "Rp 52T", icon : <UserGroupIcon className='w-8 h-8'/>, description : "Total target PKB nasional"},
-    {title : "Realisasi", value : "Rp 52.2T", icon : <CreditCardIcon className='w-8 h-8'/>, description : "Total realisasi PKB nasional"},
-    {title : "Persentase Realisasi Pajak", value : "103%", icon : <CircleStackIcon className='w-8 h-8'/>, description : "Persentase Realisasi PKB"},
-    // {title : "Active Users", value : "5.6k", icon : <UsersIcon className='w-8 h-8'/>, description : "↙ 300 (18%)"},
-]
+    { title: "Target", value: "Rp 52T", icon: <UserGroupIcon className='w-8 h-8' />, description: "Total target PKB nasional" },
+    { title: "Realisasi", value: "Rp 52.2T", icon: <CreditCardIcon className='w-8 h-8' />, description: "Total realisasi PKB nasional" },
+    { title: "Persentase Realisasi Pajak", value: "103%", icon: <CircleStackIcon className='w-8 h-8' />, description: "Persentase Realisasi PKB" },
+    // { title: "Active Users", value: "5.6k", icon: <UsersIcon className='w-8 h-8' />, description: "↙ 300 (18%)" },
+];
 
+const chartOptions = [
+    { value: '1', label: 'Jumlah Kendaraan Bermotor' },
+    { value: '3', label: 'Jumlah Kendaraan Bermotor Yang Menunggak Selama 5 Tahun' },
+    { value: '4', label: 'Jumlah Kendaraan Bermotor Yang Menunggak Selama 7 Tahun' },
+    { value: '5', label: 'Jumlah Kendaraan Bermotor Yang Membayar Pajak Tahun Berjalan' },
+    { value: '6', label: 'Jumlah Kendaraan Bermotor Baru' },
+    { value: '7', label: 'Nominal Kendaraan Bermotor Yang Menunggak Selama 5 Tahun (Dalam Rupiah)' },
+    { value: '8', label: 'Nominal Kendaraan Bermotor Yang Menunggak Selama 7 Tahun (Dalam Rupiah)' },
+    { value: '9', label: 'Nominal Kendaraan Bermotor Yang Menunggak Selama 1 Tahun (Dalam Rupiah)' },
+    { value: '10-1', label: 'Jumlah Kendaraan Bermotor Yang Membayar Pajak Secara Online' },
+    { value: '10-2', label: 'Jumlah Kendaraan Bermotor Yang Membayar Pajak Secara Offline' },
+    { value: '11-1', label: 'Nominal Kendaraan Bermotor Yang Membayar Pajak Secara Online (Dalam Rupiah)' },
+    { value: '11-2', label: 'Nominal Kendaraan Bermotor Yang Membayar Pajak Secara Offline (Dalam Rupiah)' },
+    { value: '12-1', label: 'Jumlah Kendaraan Bermotor 1 Tahun Sebelum' },
+    { value: '12-2', label: 'Jumlah Kendaraan Bermotor 2 Tahun Sebelum' },
+    { value: '12-3', label: 'Jumlah Kendaraan Bermotor 3 Tahun Sebelum' },
+    { value: '13-1', label: 'Jumlah Kendaraan Bermotor Yang Membayar 1 Tahun Sebelum' },
+    { value: '13-2', label: 'Jumlah Kendaraan Bermotor Yang Membayar 2 Tahun Sebelum' },
+    { value: '13-3', label: 'Jumlah Kendaraan Bermotor Yang Membayar 3 Tahun Sebelum' },
+    { value: '14-1', label: 'Jumlah Kendaraan Bermotor Yang Tidak Membayar 1 Tahun Sebelum' },
+    { value: '14-2', label: 'Jumlah Kendaraan Bermotor Yang Tidak Membayar 2 Tahun Sebelum' },
+    { value: '14-3', label: 'Jumlah Kendaraan Bermotor Yang Tidak Membayar 3 Tahun Sebelum' },
+    { value: '15-1', label: 'Nominal Kendaraan Bermotor Yang Membayar 1 Tahun Sebelum (Dalam Rupiah)' },
+    { value: '15-2', label: 'Nominal Kendaraan Bermotor Yang Membayar 2 Tahun Sebelum (Dalam Rupiah)' },
+    { value: '15-3', label: 'Nominal Kendaraan Bermotor Yang Membayar 3 Tahun Sebelum (Dalam Rupiah)' },
+    { value: '16-1', label: 'Nominal Kendaraan Bermotor Yang Tidak Membayar 1 Tahun Sebelum (Dalam Rupiah)' },
+    { value: '16-2', label: 'Nominal Kendaraan Bermotor Yang Tidak Membayar 2 Tahun Sebelum (Dalam Rupiah)' },
+    { value: '16-3', label: 'Nominal Kendaraan Bermotor Yang Tidak Membayar 3 Tahun Sebelum (Dalam Rupiah)' },
+];
 
+function Dashboard() {
+    const [selectedChart, setSelectedChart] = useState('1'); // State for the selected chart
+    const [chartLabel, setChartLabel] = useState('Jumlah Kendaraan Bermotor'); // State for the selected chart's label
+    const [provinces, setProvinces] = useState([]); // State for province options
+    const [kodeProp, setKodeProp] = useState('0'); // State for selected province code
+    const [kabupatens, setKabupatens] = useState([]); // State for kabupaten options
+    const [kodeKab, setKodeKab] = useState('0'); // State for selected kabupaten code
 
-function Dashboard(){
-
-    const dispatch = useDispatch()
- 
-
-    const updateDashboardPeriod = (newRange) => {
-        // Dashboard range changed, write code to refresh your values
-        dispatch(showNotification({message : `Period updated to ${newRange.startDate} to ${newRange.endDate}`, status : 1}))
-    }
-
-    const [activeChart, setActiveChart] = useState('JKBarChart');
-
-    const renderActiveChart = () => {
-        switch (activeChart) {
-          case 'JKBarChart':
-            return <JKBarChart />;
-          case 'XP57BarChart':
-            return <XP57BarChart />;
-          case 'BPBarChart':
-            return <BPBarChart />;
-          case 'KBBarChart':
-            return <KBBarChart />;
-          case 'XPR157BarChart':
-            return <XPR157BarChart />;
-          case 'POOBarChart':
-            return <POOBarChart />;
-          case 'POORBarChart':
-            return <POORBarChart />;
-          case 'JK123BarChart':
-            return <JK123BarChart />;
-          case 'JKP123BarChart':
-            return <JKP123BarChart />;
-          case 'JKXP123BarChart':
-            return <JKXP123BarChart />;
-          case 'JKPR123BarChart':
-            return <JKPR123BarChart />;
-          case 'JKXPR123BarChart':
-            return <JKXPR123BarChart />;
-          case 'additionalChart':
-            return <AdditionalChart />;
-          case 'additionalChartRupiah':
-            return <AdditionalChartRupiah />;
-          default:
-            return null;
-        }
+    const handleDropdownChange = (event) => {
+        const selectedOption = chartOptions.find(option => option.value === event.target.value);
+        setSelectedChart(selectedOption.value); // Update selected chart based on dropdown
+        setChartLabel(selectedOption.label); // Update the label for the selected chart
     };
-
-    const renderActiveTable = () => {
-        switch (activeChart) {
-          case 'JKBarChart':
-            return <LineChart />;
-          case 'XP57BarChart':
-            return <LineChart />;
-          case 'BPBarChart':
-            return <LineChart />;
-          case 'KBBarChart':
-            return <LineChart />;
-          case 'XPR157BarChart':
-            return <LineChart />;
-          case 'POOBarChart':
-            return <LineChart />;
-          case 'POORBarChart':
-            return <LineChart />;
-          case 'JK123BarChart':
-            return <LineChart />;
-        // 13
-          case 'JKP123BarChart':
-            return <Selisih13 />;
-        // 14
-          case 'JKXP123BarChart':
-            return <Selisih13 />;
-        // 15
-          case 'JKPR123BarChart':
-            return <Selisih15 />;
-        // 16
-          case 'JKXPR123BarChart':
-            return <Selisih15 />;
-          case 'additionalChart':
-              return <Table2 />;
-          case 'additionalChartRupiah':
-              return <Table2 />;
-          default:
-            return null;
-        }
-    };
-
-    const renderActiveDetailTable = () => {
-        switch (activeChart) {
-          case 'JKBarChart':
-            return <Table2 />;
-          case 'XP57BarChart':
-            return <Table3 />;
-          case 'BPBarChart':
-            return <Table5 />;
-          case 'KBBarChart':
-            return <Table6 />;
-          case 'XPR157BarChart':
-            return <Table7 />;
-          case 'POOBarChart':
-            return <Table10 />;
-          case 'POORBarChart':
-            return <Table11 />;
-          case 'JK123BarChart':
-            return <Table12 />;
-        // 13
-          case 'JKP123BarChart':
-            return <Table13 />;
-        // 14
-          case 'JKXP123BarChart':
-            return <Table14 />;
-        // 15
-          case 'JKPR123BarChart':
-            return <Table15 />;
-        // 16
-          case 'JKXPR123BarChart':
-            return <Table16 />;
-          case 'additionalChart':
-            return <Table2 />;
-          case 'additionalChartRupiah':
-            return <Table2 />;
-          default:
-            return null;
-        }
-    };
-
     
+    const handleProvinceChange = (event) => {
+        const selectedKodeProp = event.target.value;
+        setKodeProp(selectedKodeProp); // Update selected province code
+        setKodeKab('0'); // Reset kabupaten code when province changes
+        if (selectedKodeProp === '0') {
+            setKabupatens([]); // Clear kabupaten options if national level is selected
+        } else {
+            fetchKabupatens(selectedKodeProp); // Fetch kabupatens based on selected province
+        }
+    };
 
-    return(
+    const handleKabupatenChange = (event) => {
+        setKodeKab(event.target.value); // Update selected kabupaten code
+    };
+
+    // Fetch list of provinces from the API
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            try {
+                const response = await fetch('http://localhost:3001/api/provinces');
+                const data = await response.json();
+                setProvinces(data); // Set the provinces state with the fetched data
+            } catch (error) {
+                console.error('Error fetching provinces:', error);
+            }
+        };
+
+        fetchProvinces();
+    }, []);
+
+    // Fetch list of kabupatens based on selected province
+    const fetchKabupatens = async (kodeProp) => {
+        try {
+            const response = await fetch(`http://localhost:3001/api/kabupaten/${kodeProp}`);
+            const data = await response.json();
+            setKabupatens(data); // Set the kabupatens state with the fetched data
+        } catch (error) {
+            console.error('Error fetching kabupatens:', error);
+        }
+    };
+
+    // Inline styles for dropdown container
+    const containerStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px', // Space between dropdowns
+        marginBottom: '1rem', // Margin below the dropdowns
+    };
+
+    return (
         <>
-        {/** ---------------------- Select Period Content ------------------------- */}
-            {/* <DashboardTopBar updateDashboardPeriod={updateDashboardPeriod}/> */}
-
-            <div className="dropdown mb-4">
-              <label tabIndex={0} className="btn btn-white m-1">Pilih Bagan</label>
-              <ul 
-                tabIndex={0} 
-                className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 h-60 overflow-y-scroll flex flex-row"
-              >
-                <li className="w-full block"><a onClick={() => setActiveChart('JKBarChart')}>2. Jumlah Kendaraan per Tipe</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('XP57BarChart')}>3. Jumlah Kendaraan yang Tidak Membayar Pajak (5 Tahun dan 7 Tahun)</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('BPBarChart')}>5. Jumlah Kendaraan Bermotor Yang Membayar Pajak Tahun Berjalan</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('KBBarChart')}>6. Jumlah Kendaraan Baru 2024</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('XPR157BarChart')}>7. Jumlah Kendaraan yang Tidak Membayar Pajak 1, 5, dan 7 Tahun (Dalam Rupiah)</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('POOBarChart')}>10. Jumlah Pembayaran per Metode</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('POORBarChart')}>11. Jumlah Pembayaran per Metode (Dalam Rupiah)</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('JK123BarChart')}>12. Jumlah Kendaraan 2023, 2022, dan 2021</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('JKP123BarChart')}>13. Jumlah Kendaraan Bermotor yang Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('JKXP123BarChart')}>14. Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('JKPR123BarChart')}>15. Jumlah Kendaraan Bermotor yang Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe (Dalam Rupiah)</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('JKXPR123BarChart')}>16. Jumlah Kendaraan Bermotor yang Tidak Membayar Pajak 1,2 dan 3 Tahun Sebelum per Tipe (Dalam Rupiah)</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('additionalChart')}>Jumlah Kendaraan Bermotor Yang Tidak Membayar Pajak</a></li>
-                <li className="w-full block"><a onClick={() => setActiveChart('additionalChartRupiah')}>Nilai Kendaraan Bermotor Yang Tidak Membayar Pajak (Dalam Rupiah)</a></li>
-              </ul>
-            </div>
-        
-        {/** ---------------------- Different stats content 1 ------------------------- */}
+            {/** ---------------------- Different stats content 1 ------------------------- */}
             <div className="grid lg:grid-cols-3 mt-2 md:grid-cols-2 grid-cols-1 gap-6">
                 {
                     statsData.map((d, k) => {
                         return (
-                            <DashboardStats key={k} {...d} colorIndex={k}/>
+                            <DashboardStats key={k} {...d} colorIndex={k} />
                         )
                     })
                 }
             </div>
 
-        {/** ---------------------- Different charts ------------------------- */}
-            <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
-                {renderActiveChart()}
+            {/* Dropdown menu to select chart, province, and kabupaten */}
+            <div style={containerStyle}>
+                <div>
+                    <label htmlFor="chartSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Chart:</label>
+                    <select
+                        id="chartSelect"
+                        className="input input-bordered w-72"
+                        onChange={handleDropdownChange}
+                        value={selectedChart}
+                        label={chartLabel}
+                    >
+                        {chartOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.value} {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="provinceSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Province:</label>
+                    <select
+                        id="provinceSelect"
+                        className="input input-bordered w-72"
+                        onChange={handleProvinceChange}
+                        value={kodeProp}
+                    >
+                        <option value="0">National Level</option>
+                        {provinces.map(province => (
+                            <option key={province.kode_prop} value={province.kode_prop}>
+                                {province.nama_daerah}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {kodeProp !== '0' && (
+                    <div>
+                        <label htmlFor="kabupatenSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Kabupaten:</label>
+                        <select
+                            id="kabupatenSelect"
+                            className="input input-bordered w-72"
+                            onChange={handleKabupatenChange}
+                            value={kodeKab}
+                        >
+                            <option value="0">All Kabupaten/Kota</option>
+                            {kabupatens.map(kabupaten => (
+                                <option key={kabupaten.kode_kab} value={kabupaten.kode_kab}>
+                                    {kabupaten.nama_daerah}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
 
-
-        {/** ---------------------- User source channels table  ------------------------- */}
-        
-            <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-                {renderActiveTable()}
-                <DoughnutChart />
-            </div>
-
-            <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
-                {renderActiveDetailTable()}
+            {/* Display the selected chart based on the dropdown value */}
+            <div>
+                {selectedChart && (
+                    <FlexBarChart kode_chart={selectedChart} kode_prop={kodeProp} kode_kab={kodeKab} chartLabel={chartLabel} />
+                )}
             </div>
         </>
-    )
+    );
 }
 
-export default Dashboard
+export default Dashboard;

@@ -18,11 +18,12 @@ const formatCurrency = (value) => {
 
 const Table7 = () => {
   const [data, setData] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/tipekendaraan/tidakbayarrupiah');
+        const response = await axios.get(`${apiUrl}/api/tipekendaraan/tidakbayarrupiah`);
         const { counts1Years, counts5Years, counts7Years } = response.data;
 
         // Convert JSON to a format suitable for the table

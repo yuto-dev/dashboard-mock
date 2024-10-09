@@ -19,11 +19,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const POORBarChart = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchChartData = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/paymethod/rupiah');
+                const response = await axios.get(`${apiUrl}/api/paymethod/rupiah`);
                 const data = response.data;
 
                 const labels = data.map(item => item.metodepembayaran.charAt(0).toUpperCase() + item.metodepembayaran.slice(1));

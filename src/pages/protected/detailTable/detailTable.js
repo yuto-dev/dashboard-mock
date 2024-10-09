@@ -10,11 +10,12 @@ const KabupatenTable = ({ provinceId, provinceName }) => {
   const [kabupatenData, setKabupatenData] = useState([]);
   const [kabupatenDetail, setKabupatenDetail] = useState([]);
   const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchKabupatenData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/kabupaten/${provinceId}`);
+        const response = await axios.get(`${apiUrl}/api/kabupaten/${provinceId}`);
         setKabupatenData(response.data);
         setLoading(false);
       } catch (error) {
@@ -25,7 +26,7 @@ const KabupatenTable = ({ provinceId, provinceName }) => {
 
     const fetchKabupatenDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/kabupatendetail/${provinceId}`);
+        const response = await axios.get(`${apiUrl}/api/kabupatendetail/${provinceId}`);
         setKabupatenDetail(response.data);
         setLoading(false);
       } catch (error) {

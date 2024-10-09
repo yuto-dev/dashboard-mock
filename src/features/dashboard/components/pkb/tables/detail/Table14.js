@@ -18,11 +18,12 @@ const formatCurrency = (value) => {
 
 const Table14 = () => {
   const [data, setData] = useState({ counts1Years: {}, counts2Years: {}, counts3Years: {} });
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/tipekendaraan/xpajak123');
+        const response = await axios.get(`${apiUrl}/api/tipekendaraan/xpajak123`);
         setData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);

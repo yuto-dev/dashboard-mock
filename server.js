@@ -2,23 +2,1721 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const port = 3001;
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+
 // Enable CORS
+// app.use(cors({
+//   origin: allowedOrigins,
+//   methods: 'GET,POST,PUT,DELETE',
+//   allowedHeaders: 'Content-Type, Authorization'
+// }));
+
+// app.options('*', cors());
+
 app.use(cors());
 
 // PostgreSQL connection setup
 const pool = new Pool({
-  user: 'abi',
-  host: 'localhost',
-  database: 'depdagri',
-  password: 'abi',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
+// WHERE provinsiid = $1 AND kabupatenid = $2`, [provinceId, kabupatenId]);
+// API endpoint
+
+app.get('/api/provinces', async (req, res) => {
+  try {
+      const result = await pool.query(`
+          SELECT DISTINCT kode_prop, nama_daerah 
+          FROM daerah_master
+          WHERE kode_prop IS NOT NULL AND kode_kab = '00'
+          ORDER BY kode_prop ASC
+      `);
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error fetching provinces:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/kabupaten/:kodeProp', async (req, res) => {
+  const { kodeProp } = req.params;
+
+  // Use the correct comparison operator
+  const query = `SELECT kode_kab, nama_daerah FROM daerah_master WHERE kode_prop = $1`; // Use '=' instead of just using 'kode_prop $1'
+  
+  try {
+      const { rows } = await pool.query(query, [kodeProp]);
+      res.json(rows);
+  } catch (error) {
+      console.error('Error fetching kabupatens:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// 1 Jumlah Kendaraan Bermotor
+app.get('/api/1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+app.get('/api/1detail/:kode_prop/:kode_kab', async (req, res) => {
+    const { kode_prop, kode_kab } = req.params;
+
+    let query;
+    let queryParams = [];
+
+    if (kode_prop === "0") {
+        query = `
+            SELECT jenis_kendaraan, jenis_kepemilikan, SUM(jumlah_kendaraan) AS total_jumlah
+            FROM formatpkbrekap
+            WHERE bulan = 12 AND tahun = 2024
+            GROUP BY jenis_kendaraan, jenis_kepemilikan
+            ORDER BY jenis_kendaraan, jenis_kepemilikan;
+        `;
+    } else if (kode_kab === "0") {
+        query = `
+            SELECT jenis_kendaraan, jenis_kepemilikan, SUM(jumlah_kendaraan) AS total_jumlah
+            FROM formatpkbrekap
+            WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+            GROUP BY jenis_kendaraan, jenis_kepemilikan
+            ORDER BY jenis_kendaraan, jenis_kepemilikan;
+        `;
+        queryParams = [kode_prop]; // Only add kode_prop
+    } else {
+        query = `
+            SELECT jenis_kendaraan, jenis_kepemilikan, SUM(jumlah_kendaraan) AS total_jumlah
+            FROM formatpkbrekap
+            WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+            GROUP BY jenis_kendaraan, jenis_kepemilikan
+            ORDER BY jenis_kendaraan, jenis_kepemilikan;
+        `;
+        queryParams = [kode_prop, kode_kab]; // Add both parameters
+    }
+
+    try {
+        const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+        // Transforming the result into desired JSON format
+        const responseData = {};
+        result.rows.forEach(row => {
+            if (!responseData[row.jenis_kendaraan]) {
+                responseData[row.jenis_kendaraan] = {};
+            }
+            responseData[row.jenis_kendaraan][row.jenis_kepemilikan] = parseInt(row.total_jumlah); // Ensure the value is a number
+        });
+
+        res.json(responseData); // Sending JSON response
+    } catch (error) {
+        console.error('Error executing query', error.stack);
+        res.status(500).send('Server error');
+    }
+});
+
+// 3 Jumlah Kendaraan Bermotor Yang Menunggak Selama 5 Tahun
+app.get('/api/3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 4 Jumlah Kendaraan Bermotor Yang Menunggak Selama 7 Tahun
+app.get('/api/4/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 5 Jumlah Kendaraan Bermotor Yang Membayar Pajak Tahun Berjalan
+app.get('/api/5/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 6 Jumlah Kendaraan Bermotor Baru
+app.get('/api/6/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let query2024;
+  let query2023;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query2024 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      query2023 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query2024 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      query2023 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      query2024 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      query2023 = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const result2024 = await pool.query(query2024, queryParams);
+      const result2023 = await pool.query(query2023, queryParams);
+
+      const responseData = {};
+      
+      result2024.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      result2023.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] -= parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = -parseInt(row.total_jumlah);
+          }
+      });
+      
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 7 Nominal Kendaraan Bermotor Yang Menunggak Selama 5 Tahun (Dalam Rupiah)
+app.get('/api/7/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_5tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 8 Nominal Kendaraan Bermotor Yang Menunggak Selama 7 Tahun (Dalam Rupiah)
+app.get('/api/8/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_7tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 9 Nominal Kendaraan Bermotor Yang Menunggak Selama 1 Tahun (Dalam Rupiah)
+app.get('/api/9/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_1tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_1tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_menunggak_1tahun) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 10.1 Jumlah Kendaraan Bermotor Yang Membayar Pajak Secara Online
+app.get('/api/10-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 10.2 Jumlah Kendaraan Bermotor Yang Membayar Pajak Secara Offline
+app.get('/api/10-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 11.1 Nominal Kendaraan Bermotor Yang Membayar Pajak Secara Online (Dalam Rupiah)
+app.get('/api/11-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 11.2 Nominal Kendaraan Bermotor Yang Membayar Pajak Secara Offline (Dalam Rupiah)
+app.get('/api/11-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2024
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 12.1 Jumlah Kendaraan Bermotor 1 Tahun Sebelum
+app.get('/api/12-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 12.2 Jumlah Kendaraan Bermotor 2 Tahun Sebelum
+app.get('/api/12-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 12.3 Jumlah Kendaraan Bermotor 3 Tahun Sebelum
+app.get('/api/12-3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 13.1 Jumlah Kendaraan Bermotor Yang Membayar 1 Tahun Sebelum
+app.get('/api/13-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 13.2 Jumlah Kendaraan Bermotor Yang Membayar 2 Tahun Sebelum
+app.get('/api/13-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 13.3 Jumlah Kendaraan Bermotor Yang Membayar 3 Tahun Sebelum
+app.get('/api/13-3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 14.1 Jumlah Kendaraan Bermotor Yang Tidak Membayar 1 Tahun Sebelum
+app.get('/api/14-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryTotal;
+  let queryBayar;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryTotal, queryParams);
+      const resultBayar = await pool.query(queryBayar, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] -= parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = -parseInt(row.total_jumlah);
+          }
+      });
+      
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 14.2 Jumlah Kendaraan Bermotor Yang Tidak Membayar 2 Tahun Sebelum
+app.get('/api/14-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryTotal;
+  let queryBayar;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryTotal, queryParams);
+      const resultBayar = await pool.query(queryBayar, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] -= parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = -parseInt(row.total_jumlah);
+          }
+      });
+      
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 14.3 Jumlah Kendaraan Bermotor Yang Tidak Membayar 3 Tahun Sebelum
+app.get('/api/14-3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryTotal;
+  let queryBayar;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryTotal = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryBayar = `
+          SELECT jenis_kendaraan, SUM(jumlah_kendaraan_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryTotal, queryParams);
+      const resultBayar = await pool.query(queryBayar, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] -= parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = -parseInt(row.total_jumlah);
+          }
+      });
+      
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 15.1 Nominal Kendaraan Bermotor Yang Membayar 1 Tahun Sebelum (Dalam Rupiah)
+app.get('/api/15-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryOnline;
+  let queryOffline;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryOnline, queryParams);
+      const resultBayar = await pool.query(queryOffline, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] += parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+          }
+      });
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 15.2 Nominal Kendaraan Bermotor Yang Membayar 2 Tahun Sebelum (Dalam Rupiah)
+app.get('/api/15-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryOnline;
+  let queryOffline;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryOnline, queryParams);
+      const resultBayar = await pool.query(queryOffline, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] += parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+          }
+      });
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 15.3 Nominal Kendaraan Bermotor Yang Membayar 3 Tahun Sebelum (Dalam Rupiah)
+app.get('/api/15-3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+
+  let queryOnline;
+  let queryOffline;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop];
+  } else {
+      queryOnline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_online) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryOffline = `
+          SELECT jenis_kendaraan, SUM(nominal_pembayaran_offline) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab];
+  }
+
+  try {
+      const resultTotal = await pool.query(queryOnline, queryParams);
+      const resultBayar = await pool.query(queryOffline, queryParams);
+
+      const responseData = {};
+      
+      resultTotal.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+      });
+
+      resultBayar.rows.forEach(row => {
+          if (responseData[row.jenis_kendaraan] !== undefined) {
+              responseData[row.jenis_kendaraan] += parseInt(row.total_jumlah);
+          } else {
+              responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah);
+          }
+      });
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 16.1 Nominal Kendaraan Bermotor Yang Tidak Membayar 1 Tahun Sebelum (Dalam Rupiah) 
+app.get('/api/16-1/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2023
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 16.2 Nominal Kendaraan Bermotor Yang Tidak Membayar 2 Tahun Sebelum (Dalam Rupiah)
+app.get('/api/16-2/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2022
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// 16.3 Nominal Kendaraan Bermotor Yang Tidak Membayar 3 Tahun Sebelum (Dalam Rupiah)
+app.get('/api/16-3/:kode_prop/:kode_kab', async (req, res) => {
+  const { kode_prop, kode_kab } = req.params;
+  
+  let query;
+  let queryParams = [];
+
+  if (kode_prop === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+  } else if (kode_kab === "0") {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop]; // Only add kode_prop
+  } else {
+      query = `
+          SELECT jenis_kendaraan, SUM(nominal_kendaraan_tidak_bayar) AS total_jumlah
+          FROM formatpkbrekap
+          WHERE kode_prop = $1 AND kode_kab = $2 AND bulan = 12 AND tahun = 2021
+          GROUP BY jenis_kendaraan
+          ORDER BY jenis_kendaraan;
+      `;
+      queryParams = [kode_prop, kode_kab]; // Add both parameters
+  }
+
+  try {
+      const result = await pool.query(query, queryParams); // Execute the query with parameters
+
+      // Transforming the result into desired JSON format
+      const responseData = {};
+      result.rows.forEach(row => {
+          responseData[row.jenis_kendaraan] = parseInt(row.total_jumlah); // Ensure the value is a number
+      });
+
+      res.json(responseData); // Sending JSON response
+  } catch (error) {
+      console.error('Error executing query', error.stack);
+      res.status(500).send('Server error');
+  }
+});
+
+// ==================================
 // Endpoint to fetch data based on ID
+// ==================================
 
 app.get('/api/province/all', async (req, res) => {
     try {
@@ -40,7 +1738,6 @@ app.get('/api/province/all', async (req, res) => {
 
 app.get('/api/province/:id', async (req, res) => {
   const { id } = req.params;
-  console.log('Province ID:', id);
   try {
     const result = await pool.query(`
       SELECT anggaranpkb, realisasipkb, anggaranbbnkb, realisasibbnkb, daerah 
