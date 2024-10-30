@@ -52,9 +52,9 @@ months = range(1,13)
 years = range(2014, 2025)  # Years from 2014 to 2024
 vehicle_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q']
 ownership_types = ['A', 'B', 'C', 'D']
-daerah = "38"
-prop = "03"
-kabupaten = "03"
+daerah = "1"
+prop = "01"
+kabupaten = "00"
 
 previous_values = {vehicle_type: random.randint(1000, 2000) for vehicle_type in vehicle_types}
 

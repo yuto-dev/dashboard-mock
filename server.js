@@ -11,15 +11,15 @@ const port = 3001;
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
 
 // Enable CORS
-// app.use(cors({
-//   origin: allowedOrigins,
-//   methods: 'GET,POST,PUT,DELETE',
-//   allowedHeaders: 'Content-Type, Authorization'
-// }));
+app.use(cors({
+origin: allowedOrigins,
+methods: 'GET,POST,PUT,DELETE',
+allowedHeaders: 'Content-Type, Authorization'
+}));
 
-// app.options('*', cors());
+app.options('*', cors());
 
-app.use(cors());
+// app.use(cors());
 
 // PostgreSQL connection setup
 const pool = new Pool({
@@ -38,7 +38,7 @@ app.get('/api/provinces', async (req, res) => {
       const result = await pool.query(`
           SELECT DISTINCT kode_prop, nama_daerah 
           FROM daerah_master
-          WHERE kode_prop IS NOT NULL AND kode_kab = '00'
+          WHERE is_prop = 'TRUE'
           ORDER BY kode_prop ASC
       `);
       res.json(result.rows);
@@ -1755,7 +1755,7 @@ app.get('/api/province/:id', async (req, res) => {
   }
 });
 
-app.get('/api/kabupaten/:provinceId', async (req, res) => {
+app.get('/api/kabupaten-data/:provinceId', async (req, res) => {
     const { provinceId } = req.params;
     try {
       const result = await pool.query(`

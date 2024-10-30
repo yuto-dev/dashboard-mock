@@ -49,7 +49,7 @@ function Dashboard() {
     const [kodeProp, setKodeProp] = useState('0'); // State for selected province code
     const [kabupatens, setKabupatens] = useState([]); // State for kabupaten options
     const [kodeKab, setKodeKab] = useState('0'); // State for selected kabupaten code
-
+    const apiUrl = process.env.REACT_APP_API_URL;
     const handleDropdownChange = (event) => {
         const selectedOption = chartOptions.find(option => option.value === event.target.value);
         setSelectedChart(selectedOption.value); // Update selected chart based on dropdown
@@ -75,7 +75,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/provinces');
+                const response = await fetch(`${apiUrl}/api/provinces`);
                 const data = await response.json();
                 setProvinces(data); // Set the provinces state with the fetched data
             } catch (error) {
@@ -89,7 +89,7 @@ function Dashboard() {
     // Fetch list of kabupatens based on selected province
     const fetchKabupatens = async (kodeProp) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/kabupaten/${kodeProp}`);
+            const response = await fetch(`${apiUrl}/api/kabupaten/${kodeProp}`);
             const data = await response.json();
             setKabupatens(data); // Set the kabupatens state with the fetched data
         } catch (error) {
@@ -103,6 +103,7 @@ function Dashboard() {
         alignItems: 'center',
         gap: '10px', // Space between dropdowns
         marginBottom: '1rem', // Margin below the dropdowns
+        marginTop: '1rem',
     };
 
     return (
@@ -121,7 +122,7 @@ function Dashboard() {
             {/* Dropdown menu to select chart, province, and kabupaten */}
             <div style={containerStyle}>
                 <div>
-                    <label htmlFor="chartSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Chart:</label>
+                    <label htmlFor="chartSelect" className="block mt-2 mb-2 text-sm font-medium text-gray-700">Pilih Chart:</label>
                     <select
                         id="chartSelect"
                         className="input input-bordered w-72"
@@ -138,14 +139,14 @@ function Dashboard() {
                 </div>
 
                 <div>
-                    <label htmlFor="provinceSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Province:</label>
+                    <label htmlFor="provinceSelect" className="block mt-2 mb-2 text-sm font-medium text-gray-700">Pilih Provinsi:</label>
                     <select
                         id="provinceSelect"
                         className="input input-bordered w-72"
                         onChange={handleProvinceChange}
                         value={kodeProp}
                     >
-                        <option value="0">National Level</option>
+                        <option value="0">Tingkat Nasional</option>
                         {provinces.map(province => (
                             <option key={province.kode_prop} value={province.kode_prop}>
                                 {province.nama_daerah}
@@ -156,14 +157,14 @@ function Dashboard() {
 
                 {kodeProp !== '0' && (
                     <div>
-                        <label htmlFor="kabupatenSelect" className="block mb-2 text-sm font-medium text-gray-700">Select Kabupaten:</label>
+                        <label htmlFor="kabupatenSelect" className="block mb-2 text-sm font-medium text-gray-700">Pilih Kabupaten:</label>
                         <select
                             id="kabupatenSelect"
                             className="input input-bordered w-72"
                             onChange={handleKabupatenChange}
                             value={kodeKab}
                         >
-                            <option value="0">All Kabupaten/Kota</option>
+                            <option value="0">Semua Kabupaten/Kota</option>
                             {kabupatens.map(kabupaten => (
                                 <option key={kabupaten.kode_kab} value={kabupaten.kode_kab}>
                                     {kabupaten.nama_daerah}

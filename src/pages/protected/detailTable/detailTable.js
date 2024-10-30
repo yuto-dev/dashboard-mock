@@ -15,7 +15,10 @@ const KabupatenTable = ({ provinceId, provinceName }) => {
   useEffect(() => {
     const fetchKabupatenData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/kabupaten/${provinceId}`);
+        provinceId = parseInt(provinceId, 10);
+        const response = await axios.get(`${apiUrl}/api/kabupaten-data/${provinceId}`);
+        console.log(provinceId)
+        console.log(typeof(provinceId))
         setKabupatenData(response.data);
         setLoading(false);
       } catch (error) {

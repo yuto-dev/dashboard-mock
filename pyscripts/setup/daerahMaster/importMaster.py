@@ -4,7 +4,7 @@ from psycopg2 import sql, extras
 
 # Load the CSV file
 csv_file_path = 'daerah_master.csv'
-df = pd.read_csv(csv_file_path, delimiter=';')
+df = pd.read_csv(csv_file_path, delimiter=';', dtype={'kode_prop': str, 'kode_kab': str, 'kode_ddn': str, 'kode_ddn_2': str})
 
 # Select only the specified columns
 df = df[['id_daerah', 'kode_prop', 'kode_kab', 'nama_daerah', 'kode_ddn', 'kode_ddn_2', 'is_pusat', 'is_prop', 'id_prop']]

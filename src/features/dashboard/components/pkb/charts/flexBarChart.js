@@ -46,11 +46,11 @@ function FlexBarChart({ kode_chart, kode_prop, kode_kab, chartLabel }) {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const apiUrl = process.env.REACT_APP_API_URL; // Ensure this points to your correct API
-
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/api/${kode_chart}/${kode_prop}/${kode_kab}`);
+                const response = await fetch(`${apiUrl}/api/${kode_chart}/${kode_prop}/${kode_kab}`);
                 console.log(response)
                 console.log(kode_chart)
                 console.log(kode_prop)
